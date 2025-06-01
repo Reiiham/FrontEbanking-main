@@ -1,0 +1,69 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <h1>Welcome to Your Banking Dashboard</h1>
+    <nav class="dashboard-nav">
+      <a [routerLink]="['/client', clientId, 'accounts']" class="nav-btn">View All Accounts</a>
+      <a [routerLink]="['/client', clientId, 'transfer']" class="nav-btn">Make a Transfer</a>
+      <a [routerLink]="['/client', clientId, 'beneficiaries']" class="nav-btn">Manage Beneficiaries</a>
+      <a (click)="logout()" class="nav-btn">Logout</a>
+    </nav>
+  </header>
+
+  <!-- Balance Card -->
+  <div class="balance-card" *ngIf="!loadingAccounts && !errorAccounts">
+    <h2>Total Balance</h2>
+    <div class="balance-amount">{{ totalBalance | currency:'USD' }}</div>
+  </div>
+  <div class="loading-spinner" *ngIf="loadingAccounts">Loading accounts...</div>
+  <div class="error-message" *ngIf="errorAccounts">{{ errorAccounts }}</div>
+
+  <!-- Accounts Section -->
+  <div class="accounts-section" *ngIf="!loadingAccounts && !errorAccounts">
+    <h2>Your Accounts</h2>
+    <div class="accounts-grid">
+      <div class="account-card" *ngFor="let account of accounts">
+        <h3>Account {{ account.id }}</h3>
+        <p>Type: {{ account.type }}</p>
+        <p>Status: {{ account.status }}</p>
+        <p>Balance: {{ account.balance | currency:'USD' }}</p>
+        <p>Created: {{ account.dateCreatedAt | date:'medium' }}</p>
+        <div class="account-actions">
+          <a [routerLink]="['/client', clientId, 'accounts', account.id]" class="action-btn">View Details</a>
+          <a [routerLink]="['/client', clientId, 'accounts', account.id, 'transactions']" class="action-btn">View Transactions</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transactions Section -->
+  <div class="transactions-section" *ngIf="!loadingTransactions && !errorTransactions">
+    <h2>Recent Transactions (Account {{ selectedAccountId }})</h2>
+    <mat-card>
+      <mat-table [dataSource]="recentTransactions">
+        <ng-container matColumnDef="date">
+          <mat-header-cell *matHeaderCellDef>Date</mat-header-cell>
+          <mat-cell *matCellDef="let operation">{{ operation.date | date:'short' }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="type">
+          <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+          <mat-cell *matCellDef="let operation">{{ operation.type }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="amount">
+          <mat-header-cell *matHeaderCellDef>Amount</mat-header-cell>
+          <mat-cell *matCellDef="let operation" [ngClass]="operation.type === 'DEBIT' ? 'debit' : 'credit'">
+            {{ operation.amount | currency:'USD' }}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="description">
+          <mat-header-cell *matHeaderCellDef>Description</mat-header-cell>
+          <mat-cell *matCellDef="let operation">{{ operation.description }}</mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+    </mat-card>
+  </div>
+  <div class="loading-spinner" *ngIf="loadingTransactions">Loading transactions...</div>
+  <div class="error-message" *ngIf="errorTransactions">{{ errorTransactions }}</div>
+</div>

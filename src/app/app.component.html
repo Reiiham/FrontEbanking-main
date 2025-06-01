@@ -1,0 +1,8 @@
+<!-- src/app/app.component.html -->
+<mat-toolbar color="primary">
+  <span>E-Banking App</span>
+  <span class="spacer"></span>
+  <button mat-button *ngIf="isLoggedIn()" (click)="logout()">Logout</button>
+  <button mat-button *ngIf="!isLoggedIn()" routerLink="/login">Login</button>
+</mat-toolbar>
+<router-outlet></router-outlet>

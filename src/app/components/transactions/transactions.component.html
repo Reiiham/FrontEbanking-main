@@ -1,0 +1,35 @@
+<div class="transactions-container">
+  <header class="dashboard-header">
+    <h1>Account Transactions</h1>
+    <nav class="dashboard-nav">
+      <a [routerLink]="['/client', clientId, 'dashboard']" class="nav-btn">Back to Dashboard</a>
+    </nav>
+  </header>
+
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <mat-card>
+    <mat-table [dataSource]="(operations$ | async) ?? []">
+      <ng-container matColumnDef="date">
+        <mat-header-cell *matHeaderCellDef>Date</mat-header-cell>
+        <mat-cell *matCellDef="let operation">{{ operation.date | date:'short' }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="type">
+        <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+        <mat-cell *matCellDef="let operation">{{ operation.type }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="amount">
+        <mat-header-cell *matHeaderCellDef>Amount</mat-header-cell>
+        <mat-cell *matCellDef="let operation" [ngClass]="operation.type === 'DEBIT' ? 'debit' : 'credit'">
+          {{ operation.amount | currency:'USD' }}
+        </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="description">
+        <mat-header-cell *matHeaderCellDef>Description</mat-header-cell>
+        <mat-cell *matCellDef="let operation">{{ operation.description }}</mat-cell>
+      </ng-container>
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+  </mat-card>
+</div>

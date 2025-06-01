@@ -1,0 +1,27 @@
+/* admin-dashboard/admin-dashboard.component.css */
+.dashboard-container {
+  padding: 20px;
+}
+
+.dashboard-title {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}
+
+.chart-container {
+  max-width: 400px;
+}
+
+.loading, .error {
+  padding: 15px;
+  border-radius: 4px;
+}
+
+.loading {
+  background-color: #e0e0e0;
+}
+
+.error {
+  background-color: #ffe6e6;
+  color: #d32f2f;
+}

@@ -1,0 +1,48 @@
+<div class="accounts-container">
+  <header class="dashboard-header">
+    <h1>All Accounts</h1>
+    <nav class="dashboard-nav">
+      <a [routerLink]="['/client', clientId, 'dashboard']" class="nav-btn">Back to Dashboard</a>
+    </nav>
+  </header>
+
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <mat-card>
+    <mat-table [dataSource]="(accounts$ | async) ?? []">
+      <ng-container matColumnDef="id">
+        <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
+        <mat-cell *matCellDef="let account">{{ account.id }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+        <mat-cell *matCellDef="let account">{{ account.status }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="type">
+        <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+        <mat-cell *matCellDef="let account">{{ account.type }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="dateCreatedAt">
+        <mat-header-cell *matHeaderCellDef>Created</mat-header-cell>
+        <mat-cell *matCellDef="let account">{{ account.dateCreatedAt | date:'medium' }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="balance">
+        <mat-header-cell *matHeaderCellDef>Balance</mat-header-cell>
+        <mat-cell *matCellDef="let account">{{ account.balance | currency:'USD' }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="overDraft">
+        <mat-header-cell *matHeaderCellDef>Overdraft</mat-header-cell>
+        <mat-cell *matCellDef="let account">{{ account.overDraft | currency:'USD' }}</mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+        <mat-cell *matCellDef="let account">
+          <button mat-button class="action-btn" (click)="viewDetails(account.id)">Details</button>
+          <button mat-button class="action-btn" (click)="viewTransactions(account.id)">Transactions</button>
+        </mat-cell>
+      </ng-container>
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+  </mat-card>
+</div>

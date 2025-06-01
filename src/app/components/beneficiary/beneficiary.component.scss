@@ -1,0 +1,39 @@
+@import '../../client-dashboard/client-dashboard.component.scss';
+
+.beneficiary-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.beneficiary-form, .beneficiaries-table {
+  margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+mat-form-field {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.action-btn {
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #8B5CF6;
+  }
+}
+
+.success-message {
+  text-align: center;
+  padding: 10px;
+  color: #16a34a;
+  background-color: #e6ffed;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
