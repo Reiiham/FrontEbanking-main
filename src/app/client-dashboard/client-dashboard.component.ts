@@ -10,6 +10,7 @@ import { AuthService } from '../services/auth.service';
 import { BankAccount } from '../admin/models/bank-account.model';
 import { AccountOperation } from '../admin/models/account-operation.model';
 import { AccountHistory } from '../admin/models/account-history.model';
+import {ChatbotComponent} from '../components/chatbot/chatbot.component';
 
 @Component({
   selector: 'app-client-dashboard',
@@ -21,7 +22,8 @@ import { AccountHistory } from '../admin/models/account-history.model';
     RouterModule,
     MatCardModule,
     MatButtonModule,
-    MatTableModule
+    MatTableModule,
+    ChatbotComponent
   ]
 })
 export class ClientDashboardComponent implements OnInit {

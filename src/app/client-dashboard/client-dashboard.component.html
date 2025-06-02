@@ -66,4 +66,8 @@
   </div>
   <div class="loading-spinner" *ngIf="loadingTransactions">Loading transactions...</div>
   <div class="error-message" *ngIf="errorTransactions">{{ errorTransactions }}</div>
+
+  <!-- Chatbot Component -->
+  <app-chatbot [clientId]="clientId"></app-chatbot>
+
 </div>

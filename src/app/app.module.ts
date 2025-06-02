@@ -17,6 +17,8 @@ import { AccountsService } from './services/accounts.service';
 import { AuthInterceptor } from './services/auth.interceptor';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { routes } from './app.routes';
+import {ChatbotComponent} from './components/chatbot/chatbot.component';
+import {FormsModule} from '@angular/forms';
 
 @NgModule({
   declarations: [],
@@ -31,7 +33,8 @@ import { routes } from './app.routes';
     MatProgressSpinnerModule,
     MatTableModule,
     MatSelectModule,
-    AppComponent
+    AppComponent,
+    FormsModule
   ],
   providers: [
     AuthService,
