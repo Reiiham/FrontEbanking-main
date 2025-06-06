@@ -11,6 +11,7 @@ import { AuthGuard } from './auth.guard';
 import { ResolveFn } from '@angular/router';
 import { AccountsService } from './services/accounts.service';
 import { BankAccount } from './admin/models/bank-account.model';
+import { SetPasswordComponent } from './components/set-password/set-password.component';
 import { inject } from '@angular/core';
 
 const accountResolver: ResolveFn<BankAccount> = (route) => {
@@ -25,6 +26,7 @@ const accountResolver: ResolveFn<BankAccount> = (route) => {
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  {path: 'set-password', component: SetPasswordComponent},
   {
     path: 'admin',
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule),

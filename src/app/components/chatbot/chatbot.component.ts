@@ -48,8 +48,8 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   private effectiveClientId: string = ''; // Internal working clientId
 
   constructor(
-    private http: HttpClient,
-    private aiAssistantService: AIAssistantService
+      private http: HttpClient,
+      private aiAssistantService: AIAssistantService
   ) {}
 
   ngOnInit() {
@@ -362,4 +362,3 @@ Comment puis-je vous aider ?`);
     });
   }
 }
-

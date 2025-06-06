@@ -19,6 +19,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { routes } from './app.routes';
 import {ChatbotComponent} from './components/chatbot/chatbot.component';
 import {FormsModule} from '@angular/forms';
+import { SetPasswordComponent } from './components/set-password/set-password.component';
 
 @NgModule({
   declarations: [],
@@ -34,7 +35,8 @@ import {FormsModule} from '@angular/forms';
     MatTableModule,
     MatSelectModule,
     AppComponent,
-    FormsModule
+    FormsModule,
+    SetPasswordComponent
   ],
   providers: [
     AuthService,

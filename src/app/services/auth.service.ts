@@ -6,6 +6,25 @@ import { tap, catchError, map } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { LoginResponse } from '../model/login-response.model'; // Adjust the import path as necessary
 
+// Interfaces pour les nouvelles fonctionnalités
+export interface SetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+export interface TokenValidationResponse {
+  valid: boolean;
+  message: string;
+}
+
+export interface ApiResponse {
+  message: string;
+  error?: string;
+}
+
+export interface ResendActivationRequest {
+  email: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -51,7 +70,7 @@ export class AuthService {
     );
   }
 
-  // Nouvelle méthode pour vérifier le code 2FA
+  // Méthode pour vérifier le code 2FA
   verify2FA(username: string, pin: string): Observable<{ token: string, role: string, clientId: string, message: string }> {
     return this.http.post<{ token: string, role: string, clientId: string, message: string }>(
       `${this.apiUrl}/verify-2fa`,
@@ -74,7 +93,7 @@ export class AuthService {
     );
   }
 
-  // Nouvelle méthode pour renvoyer le code 2FA
+  // Méthode pour renvoyer le code 2FA
   resend2FA(username: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(
       `${this.apiUrl}/resend-2fa`,
@@ -88,6 +107,30 @@ export class AuthService {
     );
   }
 
+  /**
+   * Valide un token de réinitialisation de mot de passe
+   */
+  validateToken(token: string): Observable<TokenValidationResponse> {
+    return this.http.get<TokenValidationResponse>(`${this.apiUrl}/validate-token/${token}`);
+  }
+
+  /**
+   * Définit un nouveau mot de passe avec un token
+   */
+  setPassword(request: SetPasswordRequest): Observable<ApiResponse> {
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post<ApiResponse>(`${this.apiUrl}/set-password`, request, { headers });
+  }
+
+  /**
+   * Renvoie un lien d'activation par email
+   */
+  resendActivationLink(request: ResendActivationRequest): Observable<ApiResponse> {
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post<ApiResponse>(`${this.apiUrl}/resend-activation`, request, { headers });
+  }
+
+  // Obtenir le profil client
   getClientProfile(): Observable<{ clientId: string }> {
     const token = isPlatformBrowser(this.platformId) ? localStorage.getItem('token') : null;
     if (!token) {
@@ -111,6 +154,7 @@ export class AuthService {
     );
   }
 
+  // Obtenir le rôle utilisateur
   getRole(): Observable<string> {
     const token = isPlatformBrowser(this.platformId) ? localStorage.getItem('token') : null;
     const storedRole = isPlatformBrowser(this.platformId) ? localStorage.getItem('role') : null;
@@ -141,10 +185,22 @@ export class AuthService {
     );
   }
 
+  // Vérifier si l'utilisateur est connecté
   isLoggedIn(): boolean {
     return isPlatformBrowser(this.platformId) ? this.isAuthenticatedSubject.value : false;
   }
 
+  // Observable pour l'état d'authentification
+  get isAuthenticated$(): Observable<boolean> {
+    return this.isAuthenticatedSubject.asObservable();
+  }
+
+  // Observable pour le clientId
+  get clientId$(): Observable<string | null> {
+    return this.clientIdSubject.asObservable();
+  }
+
+  // Déconnexion
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('token');
@@ -155,7 +211,18 @@ export class AuthService {
     }
   }
 
+  // Obtenir le clientId
   getClientId(): string | null {
     return isPlatformBrowser(this.platformId) ? this.clientIdSubject.value : null;
+  }
+
+  // Obtenir le token stocké
+  getToken(): string | null {
+    return isPlatformBrowser(this.platformId) ? localStorage.getItem('token') : null;
+  }
+
+  // Obtenir le rôle stocké
+  getStoredRole(): string | null {
+    return isPlatformBrowser(this.platformId) ? localStorage.getItem('role') : null;
   }
 }

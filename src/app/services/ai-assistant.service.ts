@@ -49,15 +49,18 @@ export class AIAssistantService {
     console.log('🚀 processMessage called with:', { clientId, message, language });
 
     const url = `${this.baseUrl}/${clientId}/assistant`;
-    const params = new HttpParams().set('language', language);
     const headers = this.getAuthHeaders();
 
+    // Créer les paramètres pour la requête
+    const params = new HttpParams().set('language', language);
+
     console.log('📡 Making authenticated HTTP request to:', url);
+    console.log('📡 With params:', params.toString());
 
     return this.http.post<AIResponse>(url, message, {
-      params: params,
+      params: params,        // Les paramètres sont correctement passés ici
       headers: headers,
-      withCredentials: true // Include cookies for session-based auth
+      withCredentials: true
     }).pipe(
       tap(response => {
         console.log('✅ Authenticated response received:', response);
@@ -71,17 +74,26 @@ export class AIAssistantService {
       }),
       catchError(error => {
         console.error('❌ Authentication error:', error);
+        console.error('❌ Full error object:', error);
+
         if (error.status === 401) {
           console.error('🔐 Authentication failed - check your credentials');
-          // You might want to redirect to login page here
           return of({
             responseText: 'Session expirée. Veuillez vous reconnecter.',
             success: false,
             intent: undefined
           });
+        } else if (error.status === 404) {
+          console.error('🔍 Endpoint not found - check URL mapping');
+          return of({
+            responseText: 'Service temporairement indisponible.',
+            success: false,
+            intent: undefined
+          });
         }
+
         return of({
-          responseText: `Erreur HTTP: ${error.status} - ${error.message}`,
+          responseText: `Erreur de communication avec le serveur.`,
           success: false,
           intent: undefined
         });
