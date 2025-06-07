@@ -84,6 +84,9 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
 
+
+  // 🏠 Default and wildcard routes
+
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];

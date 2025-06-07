@@ -28,10 +28,9 @@
               }
             ],
             "styles": [
-<<<<<<< HEAD
-=======
+
               "@angular/material/prebuilt-themes/azure-blue.css",
->>>>>>> master
+
               "src/styles.css"
             ],
             "scripts": [],
@@ -96,10 +95,9 @@
               }
             ],
             "styles": [
-<<<<<<< HEAD
-=======
+
               "@angular/material/prebuilt-themes/azure-blue.css",
->>>>>>> master
+
               "src/styles.css"
             ],
             "scripts": []
