@@ -1,13 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-<<<<<<< HEAD
-import { ClientBasicDTO } from '../../../src/app/b';
-import { ClientSummaryDTO } from '../../banque/models/client-summary.model';
-=======
 import { ClientBasicDTO } from '../banque/models/client-basic.model';
 import { ClientSummaryDTO } from '../banque/models/client-summary.model';
->>>>>>> master
 import { ClientUpdateRequest } from '../banque/models/client-update-request.model';
 import { environment } from '../environments/environment';
 

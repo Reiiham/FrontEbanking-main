@@ -167,11 +167,8 @@ export class LoginComponent implements OnInit {
       this.router.navigate(['/admin/dashboard']);
     } else if (response.role === 'EMPLOYEE') {
       this.isLoading = false;
-<<<<<<< HEAD
-      this.router.navigate(['/employee/dashboard']);
-=======
+
       this.router.navigate(['/employee']);
->>>>>>> master
     } else {
       this.isLoading = false;
       this.errorMessage = 'Rôle non reconnu: ' + response.role;
