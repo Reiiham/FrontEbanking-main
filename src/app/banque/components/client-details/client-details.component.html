@@ -1,0 +1,70 @@
+<div class="client-details-container">
+  <h2>Détails du Client</h2>
+
+  <div *ngIf="client" class="client-info">
+  <p><strong>👤 Nom :</strong> {{ client.fullName }}</p>
+  <p><strong>🆔 ID :</strong> {{ client.clientId }}</p>
+
+  <div *ngIf="client.accounts?.length">
+  <p><strong>💰 Solde :</strong> {{ client.accounts[0]?.balance | currency: 'MAD' }}</p>
+  </div>
+
+</div>
+
+
+
+  <div *ngIf="message" class="alert success">{{ message }}</div>
+  <div *ngIf="error" class="alert error">{{ error }}</div>
+
+  <div class="tabs">
+    <button [class.active]="activeTab === 'activer'" (click)="activeTab = 'activer'">✅ Activer</button>
+    <button [class.active]="activeTab === 'suspendre'" (click)="activeTab = 'suspendre'">⛔ Suspendre</button>
+    <button [class.active]="activeTab === 'reactiver'" (click)="activeTab = 'reactiver'">♻️ Réactiver</button>
+  </div>
+
+  <div class="tab-content">
+    <!-- ACTIVER -->
+    <div *ngIf="activeTab === 'activer'" class="service-group">
+      <h4>Choisir des services à activer</h4>
+      <div class="service-grid">
+        <button
+          *ngFor="let service of availableServices"
+          (click)="toggleService(service, newServices)"
+          [class.selected]="newServices.includes(service)">
+          {{ service }}
+        </button>
+      </div>
+      <button class="primary" (click)="activate()">Activer les Services</button>
+    </div>
+
+    <!-- SUSPENDRE -->
+    <div *ngIf="activeTab === 'suspendre'" class="service-group">
+      <h4>Services à suspendre</h4>
+      <textarea [(ngModel)]="suspensionReason" placeholder="Raison de suspension"></textarea>
+      <textarea [(ngModel)]="suspensionMessage" placeholder="Message au client"></textarea>
+      <div class="service-grid">
+        <button
+          *ngFor="let service of availableServices"
+          (click)="toggleService(service, suspendedServices)"
+          [class.selected]="suspendedServices.includes(service)">
+          {{ service }}
+        </button>
+      </div>
+      <button class="warning" (click)="suspend()">Suspendre</button>
+    </div>
+
+    <!-- RÉACTIVER -->
+    <div *ngIf="activeTab === 'reactiver'" class="service-group">
+      <h4>Services à réactiver</h4>
+      <div class="service-grid">
+        <button
+          *ngFor="let service of availableServices"
+          (click)="toggleService(service, reactivatedServices)"
+          [class.selected]="reactivatedServices.includes(service)">
+          {{ service }}
+        </button>
+      </div>
+      <button class="success" (click)="reactivate()">Réactiver</button>
+    </div>
+  </div>
+</div>

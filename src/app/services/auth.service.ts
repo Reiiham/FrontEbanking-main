@@ -187,8 +187,17 @@ export class AuthService {
 
   // Vérifier si l'utilisateur est connecté
   isLoggedIn(): boolean {
+<<<<<<< HEAD
     return isPlatformBrowser(this.platformId) ? this.isAuthenticatedSubject.value : false;
   }
+=======
+  if (isPlatformBrowser(this.platformId)) {
+    const token = localStorage.getItem('token');
+    return !!token; // retourne true si token existe, false sinon
+  }
+  return false;
+}
+>>>>>>> master
 
   // Observable pour l'état d'authentification
   get isAuthenticated$(): Observable<boolean> {

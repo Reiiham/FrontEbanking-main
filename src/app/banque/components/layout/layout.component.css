@@ -1,0 +1,31 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+main {
+  flex: 1;
+  margin-left: 260px; /* correspond à la largeur de .sidebar */
+  padding: 2rem;
+  transition: margin-left 0.3s ease;
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  main {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .sidebar {
+    position: relative;
+    width: 100%;
+    box-shadow: none;
+    min-height: auto;
+  }
+}

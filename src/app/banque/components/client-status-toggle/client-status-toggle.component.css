@@ -1,0 +1,99 @@
+/* ===== Conteneur principal ===== */
+.status-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 2.5rem;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* ===== Titre principal ===== */
+.status-container h2 {
+  text-align: center;
+  color: #1e3a8a;
+  font-size: 26px;
+  margin-bottom: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* ===== Groupe de formulaire ===== */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.field-group label:first-child {
+  font-weight: 600;
+  font-size: 15px;
+  color: #1e293b;
+  margin-bottom: 0.2rem;
+}
+
+.field-group label {
+  font-size: 15px;
+  color: #334155;
+}
+
+.field-group input[type="radio"] {
+  margin-right: 8px;
+  accent-color: #2563eb;
+  transform: scale(1.1);
+}
+
+/* ===== Bouton ===== */
+.btn-update {
+  padding: 12px 24px;
+  background-color: #2563eb;
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background-color 0.2s ease;
+}
+
+.btn-update:hover {
+  background-color: #1e40af;
+}
+
+/* ===== Messages ===== */
+.success, .error {
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  max-width: 100%;
+}
+
+.success {
+  color: #15803d;
+  background-color: #dcfce7;
+}
+
+.error {
+  color: #b91c1c;
+  background-color: #fee2e2;
+}
+
+@media (max-width: 480px) {
+  .btn-update {
+    width: 100%;
+    text-align: center;
+  }
+}

@@ -1,0 +1,51 @@
+<div class="client-list-container">
+  <h2>📋 Liste des Clients</h2>
+
+  <div class="top-bar">
+    <div class="search-bar">
+      <input [(ngModel)]="searchQuery" placeholder="🔍 Rechercher un client..." />
+      <button (click)="search()">Rechercher</button>
+    </div>
+
+    <div class="sort-bar">
+      <label>Trier par :</label>
+      <select [(ngModel)]="sortField" (change)="sortClients()">
+        <option value="name">Nom</option>
+        <option value="accounts">Comptes</option>
+        <option value="balance">Solde</option>
+      </select>
+
+      <select [(ngModel)]="sortDirection" (change)="sortClients()">
+        <option value="asc">Croissant</option>
+        <option value="desc">Décroissant</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="error-msg">{{ error }}</div>
+
+  <div class="client-table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom Complet</th>
+          <th>Comptes</th>
+          <th>Solde Total</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let client of clients">
+          <td>{{ client.fullName }}</td>
+          <td>{{ client.accounts?.length || 0 }}</td>
+          <td>{{ getTotalBalance(client) | currency:'MAD' }}</td>
+          <td>
+            <a [routerLink]="['/clients', client.clientId]">
+              <button class="btn-details">Voir Détails</button>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
