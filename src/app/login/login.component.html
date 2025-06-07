@@ -1,0 +1,72 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>
+        {{ requires2FA ? 'Vérification de sécurité' : 'Login to eBanking' }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+
+      <!-- Formulaire de login initial -->
+      <form *ngIf="!requires2FA" (ngSubmit)="onSubmit()" #loginForm="ngForm">
+        <mat-form-field appearance="fill">
+          <mat-label>Identifiant</mat-label>
+          <input matInput [(ngModel)]="username" name="username" type="text" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Mot de passe</mat-label>
+          <input matInput [(ngModel)]="password" name="password" type="password" required>
+        </mat-form-field>
+
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+        <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+
+        <button mat-raised-button class="action-btn" type="submit"
+                [disabled]="isLoading || loginForm.invalid">
+          <span *ngIf="!isLoading">Se connecter</span>
+          <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+        </button>
+      </form>
+
+      <!-- Formulaire de vérification 2FA -->
+      <form *ngIf="requires2FA" (ngSubmit)="onVerify2FA()" #verifyForm="ngForm">
+        <div class="two-fa-info">
+          <p>Un code de vérification a été envoyé à votre téléphone.</p>
+          <p>Veuillez saisir le code à 6 chiffres ci-dessous :</p>
+        </div>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Code de vérification</mat-label>
+          <input matInput [(ngModel)]="pin" name="pin" type="text"
+                 maxlength="6" pattern="[0-9]*" required
+                 placeholder="123456">
+        </mat-form-field>
+
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+        <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+
+        <div class="button-group">
+          <button mat-raised-button color="primary" type="submit"
+                  [disabled]="isLoading || verifyForm.invalid" class="verify-btn">
+            <span *ngIf="!isLoading">Vérifier</span>
+            <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+          </button>
+
+          <button mat-stroked-button type="button"
+                  [disabled]="isLoading"
+                  (click)="onResend2FA()" class="resend-btn">
+            Renvoyer le code
+          </button>
+
+          <button mat-button type="button"
+                  [disabled]="isLoading"
+                  (click)="onBackToLogin()" class="back-btn">
+            Retour
+          </button>
+        </div>
+      </form>
+
+    </mat-card-content>
+  </mat-card>
+</div>

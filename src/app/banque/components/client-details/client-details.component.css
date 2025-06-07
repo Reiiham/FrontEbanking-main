@@ -1,0 +1,212 @@
+.client-details-container {
+  background-color: #f8fafc;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;        /* ✅ Centre horizontalement */
+  justify-content: center;    /* ✅ Centre verticalement si hauteur fixée */
+  min-height: 100vh;
+  text-align: center;         /* ✅ Centre les textes dans certains cas */
+}
+.client-info {
+  background: linear-gradient(to right, #ffffff, #f9fafb);
+  border-radius: 16px;
+  padding: 28px 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  margin-bottom: 30px;
+  font-family: 'Segoe UI', sans-serif;
+  color: #1e3a8a;
+  max-width: 500px;
+  width: 100%;
+  transition: transform 0.2s ease;
+  
+}
+
+.client-info:hover {
+  transform: translateY(-4px);
+}
+
+.client-info p {
+  font-size: 16px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #0f172a;
+}
+
+
+/* ===== Titres ===== */
+h2, h3, h4 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: #1e3a8a;
+  text-align: center;
+}
+
+/* ===== Tableau des Comptes ===== */
+.account-table {
+ 
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  background-color: transparent;
+  margin: 0 auto; /* ✅ Centre le tableau horizontalement */
+  width: auto;    /* ✅ Laisse le contenu définir la largeur si tu veux */
+}
+
+.account-table th, .account-table td {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 15px;
+}
+
+.account-table thead th {
+  background-color: #e0edff;
+  color: #1e3a8a;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.account-table tbody td {
+  background-color: #ffffff;
+  color: #374151;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  transition: transform 0.2s ease;
+}
+
+.account-table tbody tr:hover td {
+  transform: translateY(-2px);
+  background-color: #f0f8ff;
+}
+
+
+/* ===== Onglets ===== */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 2rem 0 1rem;
+}
+
+.tabs button {
+  background-color: white;
+  border: 2px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 15px;
+  padding: 10px 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #1e3a8a;
+}
+
+.tabs button.active {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+/* ===== Grille des Services (Horizontale) ===== */
+.service-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.service-grid button {
+  padding: 12px 24px;
+  background-color: #f0f4ff;
+  border: 2px solid #c7d2fe;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s ease;
+  color: #1e40af;
+  white-space: nowrap;
+  word-break: break-word;
+  text-align: center;
+  min-height: 50px;
+  min-width: 180px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.service-grid button:hover {
+  background-color: #e0e7ff;
+  border-color: #a5b4fc;
+}
+
+.service-grid button.selected {
+  background-color: #7fa0d2;
+  color: white;
+  border-color: #738ac4;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+}
+
+/* ===== Zone Texte ===== */
+textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  font-family: inherit;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  font-size: 15px;
+}
+
+/* ===== Boutons d'action ===== */
+button.primary {
+  background-color: #2563eb;
+  color: white;
+}
+
+button.warning {
+  background-color: #f59e0b;
+  color: white;
+}
+
+button.success {
+  background-color: #10b981;
+  color: white;
+}
+
+button.primary,
+button.warning,
+button.success {
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  margin-top: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* ===== Alertes ===== */
+.alert {
+  padding: 10px;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.alert.success {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.alert.error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* ===== Corps global (optionnel) ===== */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f1f5f9;
+  color: #1f2937;
+  margin: 0;
+  padding: 0;
+}

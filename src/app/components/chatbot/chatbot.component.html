@@ -1,0 +1,73 @@
+<div class="chatbot-container">
+    <!-- Chatbot Toggle Button -->
+    <button
+            class="chatbot-toggle"
+            [class.active]="isOpen"
+            (click)="toggleChat()"
+            [attr.aria-label]="isOpen ? 'Close chat' : 'Open chat'">
+        <i class="fas" [class.fa-comments]="!isOpen" [class.fa-times]="isOpen"></i>
+    </button>
+
+    <!-- Chatbot Window -->
+    <div class="chatbot-window" [class.open]="isOpen">
+        <!-- Header -->
+        <div class="chatbot-header">
+            <div>
+                <h3>🤖 Assistant Bancaire</h3>
+                <div class="status">En ligne</div>
+            </div>
+            <button class="close-btn" (click)="toggleChat()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="messages-container" #messagesContainer>
+            <div
+                    *ngFor="let message of messages"
+                    class="message"
+                    [class.user]="message.isUser"
+                    [class.bot]="!message.isUser">
+
+                <!-- Typing Indicator -->
+                <div *ngIf="message.isTyping" class="typing-indicator">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+
+                <!-- Regular Message -->
+                <div *ngIf="!message.isTyping" class="message-bubble" [innerHTML]="formatMessage(message.text)">
+                </div>
+
+                <!-- Timestamp -->
+                <div *ngIf="!message.isTyping" class="message-time">
+                    {{ getMessageTime(message.timestamp) }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+        <textarea
+                class="chat-input"
+                [(ngModel)]="currentMessage"
+                (keypress)="onKeyPress($event)"
+                placeholder="Tapez votre message..."
+                rows="1"
+                [disabled]="isTyping">
+        </textarea>
+                <button
+                        class="send-btn"
+                        (click)="sendMessage()"
+                        [disabled]="!currentMessage.trim() || isTyping"
+                        [attr.aria-label]="'Send message'">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,74 @@
+<div class="transfer-container">
+  <header class="dashboard-header">
+    <h1>Transfer Funds</h1>
+    <nav class="dashboard-nav">
+      <a [routerLink]="['/client', clientId, 'dashboard']" class="nav-btn">Back to Dashboard</a>
+    </nav>
+  </header>
+
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+    <span *ngIf="remainingBalance !== null"> - Montant restant: {{ remainingBalance | currency:'USD' }}</span>
+  </div>
+
+  <mat-card class="transfer-form">
+    <form #transferForm="ngForm">
+      <mat-form-field appearance="fill">
+        <mat-label>Source Account</mat-label>
+        <mat-select [(ngModel)]="transfer.accountSource" name="accountSource" required (selectionChange)="onSourceAccountChange()">
+          <mat-option *ngFor="let account of accounts$ | async" [value]="account.id">
+            {{ account.id }} ({{ account.balance | currency:'USD' }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Destination (RIB)</mat-label>
+        <mat-select [(ngModel)]="transfer.accountDestination" name="accountDestination" required>
+          <mat-option *ngFor="let beneficiary of beneficiaries$ | async" [value]="beneficiary.rib">
+            {{ beneficiary.name }} ({{ beneficiary.rib }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Amount</mat-label>
+        <input matInput type="number" [(ngModel)]="transfer.amount" name="amount" required min="0.01" step="0.01">
+      </mat-form-field>
+
+      <button mat-raised-button class="action-btn" (click)="transferFunds()" [disabled]="transferForm.invalid">
+        Transfer
+      </button>
+    </form>
+  </mat-card>
+
+  <div class="transactions-section" *ngIf="transfer.accountSource && !loadingTransactions">
+    <h2>Recent Transactions for {{ transfer.accountSource }}</h2>
+    <mat-card>
+      <mat-table [dataSource]="(operations$ | async) ?? []">
+        <ng-container matColumnDef="date">
+          <mat-header-cell *matHeaderCellDef>Date</mat-header-cell>
+          <mat-cell *matCellDef="let operation">{{ operation.date | date:'short' }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="type">
+          <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+          <mat-cell *matCellDef="let operation">{{ operation.type }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="amount">
+          <mat-header-cell *matHeaderCellDef>Amount</mat-header-cell>
+          <mat-cell *matCellDef="let operation" [ngClass]="operation.type === 'DEBIT' ? 'debit' : 'credit'">
+            {{ operation.amount | currency:'USD' }}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="description">
+          <mat-header-cell *matHeaderCellDef>Description</mat-header-cell>
+          <mat-cell *matCellDef="let operation">{{ operation.description }}</mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+    </mat-card>
+  </div>
+  <div class="loading-spinner" *ngIf="loadingTransactions">Loading transactions...</div>
+</div>

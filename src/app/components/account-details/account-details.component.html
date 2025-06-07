@@ -1,0 +1,21 @@
+<div class="account-details-container">
+  <header class="dashboard-header">
+    <h1>Account Details</h1>
+    <nav class="dashboard-nav">
+      <a [routerLink]="['/client', clientId, 'dashboard']" class="nav-btn">Back to Dashboard</a>
+    </nav>
+  </header>
+
+  <mat-card *ngIf="account" class="account-card">
+    <h2>Account {{ account.id }}</h2>
+    <p><strong>Type:</strong> {{ account.type }}</p>
+    <p><strong>Status:</strong> {{ account.status }}</p>
+    <p><strong>Balance:</strong> {{ account.balance | currency:'USD' }}</p>
+    <p><strong>Created:</strong> {{ account.dateCreatedAt | date:'medium' }}</p>
+    <p *ngIf="account.overDraft"><strong>Overdraft:</strong> {{ account.overDraft | currency:'USD' }}</p>
+    <div class="account-actions">
+      <a [routerLink]="['/client', clientId, 'accounts', account.id, 'transactions']" class="action-btn">View Transactions</a>
+    </div>
+  </mat-card>
+  <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+</div>

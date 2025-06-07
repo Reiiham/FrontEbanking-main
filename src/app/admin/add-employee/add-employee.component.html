@@ -1,0 +1,42 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Add New Employee</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="fill">
+        <mat-label>First Name</mat-label>
+        <input matInput [(ngModel)]="employee.firstName" name="firstName" required>
+        <mat-error *ngIf="!employee.firstName">First name is required</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Last Name</mat-label>
+        <input matInput [(ngModel)]="employee.lastName" name="lastName" required>
+        <mat-error *ngIf="!employee.lastName">Last name is required</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Phone Number</mat-label>
+        <input matInput [(ngModel)]="employee.phoneNumber" name="phoneNumber" required>
+        <mat-error *ngIf="!employee.phoneNumber">Phone number is required</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Personal Email</mat-label>
+        <input matInput [(ngModel)]="employee.emailPersonnel" name="emailPersonnel" required>
+        <mat-error *ngIf="!employee.emailPersonnel">Email Personnel is required</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Cin</mat-label>
+        <input matInput [(ngModel)]="employee.cin" name="cin" required>
+        <mat-error *ngIf="!employee.cin">cin is required</mat-error>
+      </mat-form-field>
+      <div>
+        <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+          {{ isLoading ? 'Creating...' : 'Create Employee' }}
+        </button>
+        <button mat-raised-button color="warn" type="button" (click)="cancel()" [disabled]="isLoading">Cancel</button>
+      </div>
+    </form>
+    <p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>
+    <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+  </mat-card-content>
+</mat-card>
