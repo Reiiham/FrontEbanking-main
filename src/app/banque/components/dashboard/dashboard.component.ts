@@ -2,12 +2,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClientService} from '../../../services/banque.service'
-
+import {DebugAuthComponent} from '../DebugAuthComponent/debugAuthComponent';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DebugAuthComponent],
   templateUrl: './dashboard.component.html',
   styleUrls:['./dashboard.component.css']
 })

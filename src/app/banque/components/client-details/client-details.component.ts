@@ -19,9 +19,8 @@ export class ClientDetailsComponent implements OnInit {
   message: string = '';
   error: string = '';
   isLoading: boolean = false;
-  
-  activeTab: 'activer' | 'suspendre' | 'reactiver' = 'activer';
 
+  activeTab: 'activer' | 'suspendre' | 'reactiver' = 'activer';
 
   availableServices = [
     'VIREMENT', 'PAIEMENTS_EN_LIGNE', 'CONSULTATION_SOLDE',
@@ -42,25 +41,58 @@ export class ClientDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private clientService: ClientService,
     private serviceManager: ServiceManagerService
-  ) {}
+  ) {
+    // 🔍 Debug: Component constructor called
+    console.log('🔍 ClientDetailsComponent constructor called');
+  }
 
   ngOnInit(): void {
+    console.log('🔍 ClientDetailsComponent ngOnInit started');
+
+    // Check if token still exists
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+    console.log('🔍 Token in ClientDetails ngOnInit:', token ? 'EXISTS' : 'MISSING');
+
     const id = this.route.snapshot.paramMap.get('id');
+    console.log('🔍 Route param ID:', id);
+
     if (id) {
       this.clientId = id;
       this.isLoading = true;
+
+      console.log('🔍 About to call clientService.getClientById');
+
       this.clientService.getClientById(id).subscribe({
-        next: data => this.client = data,
-        error: () => this.error = "Erreur lors du chargement du client.",
-        complete: () => this.isLoading = false
+        next: data => {
+          console.log('✅ getClientById SUCCESS:', data);
+          this.client = data;
+        },
+        error: (error) => {
+          console.error('❌ getClientById ERROR:', error);
+          console.error('❌ Error status:', error.status);
+          console.error('❌ Error message:', error.message);
+
+          // Check if it's an auth error
+          if (error.status === 401 || error.status === 403) {
+            console.error('🚨 AUTHENTICATION ERROR - This might trigger logout');
+          }
+
+          this.error = "Erreur lors du chargement du client.";
+        },
+        complete: () => {
+          console.log('🔍 getClientById completed');
+          this.isLoading = false;
+        }
       });
+    } else {
+      console.error('❌ No client ID found in route params');
     }
   }
 
   get isEligible(): boolean {
     return this.client !== undefined &&
-           !this.client['compteBloque'] &&
-           this.client['documentsComplets'];
+      !this.client['compteBloque'] &&
+      this.client['documentsComplets'];
   }
 
   toggleService(service: string, list: string[]): void {
@@ -70,42 +102,46 @@ export class ClientDetailsComponent implements OnInit {
   }
 
   activate(): void {
-  this.clearMessages();
-  console.log(this.client)
+    this.clearMessages();
+    console.log('🔍 Activate method called');
+    console.log(this.client);
 
-  // 🔁 Recharger les données du client AVANT de valider l’éligibilité
-  this.clientService.getClientById(this.clientId).subscribe({
-    next: (client) => {
-      this.client = client;
+    // 🔁 Recharger les données du client AVANT de valider l'éligibilité
+    this.clientService.getClientById(this.clientId).subscribe({
+      next: (client) => {
+        this.client = client;
 
-      if (!this.isEligible) {
-        this.error = "Le client est bloqué ou n’a pas tous les documents complets.";
-        return;
+        if (!this.isEligible) {
+          this.error = "Le client est bloqué ou n'a pas tous les documents complets.";
+          return;
+        }
+
+        if (this.newServices.length === 0) {
+          this.error = "Veuillez sélectionner des services à activer.";
+          return;
+        }
+
+        const request = {
+          clientId: this.clientId,
+          services: this.newServices
+        };
+
+        this.isLoading = true;
+        this.serviceManager.activateServices(request).subscribe({
+          next: () => this.message = "Services activés avec succès.",
+          error: (error) => {
+            console.error('❌ activateServices ERROR:', error);
+            this.error = "Erreur lors de l'activation.";
+          },
+          complete: () => this.isLoading = false
+        });
+      },
+      error: (error) => {
+        console.error('❌ Reload client ERROR:', error);
+        this.error = "Impossible de vérifier les statuts du client.";
       }
-
-      if (this.newServices.length === 0) {
-        this.error = "Veuillez sélectionner des services à activer.";
-        return;
-      }
-
-      const request = {
-        clientId: this.clientId,
-        services: this.newServices
-      };
-
-      this.isLoading = true;
-      this.serviceManager.activateServices(request).subscribe({
-        next: () => this.message = "Services activés avec succès.",
-        error: () => this.error = "Erreur lors de l'activation.",
-        complete: () => this.isLoading = false
-      });
-    },
-    error: () => {
-      this.error = "Impossible de vérifier les statuts du client.";
-    }
-  });
-}
-
+    });
+  }
 
   suspend(): void {
     this.clearMessages();
@@ -123,7 +159,10 @@ export class ClientDetailsComponent implements OnInit {
     this.isLoading = true;
     this.serviceManager.suspendServices(this.clientId, request).subscribe({
       next: () => this.message = "Services suspendus avec succès.",
-      error: () => this.error = "Erreur lors de la suspension.",
+      error: (error) => {
+        console.error('❌ suspendServices ERROR:', error);
+        this.error = "Erreur lors de la suspension.";
+      },
       complete: () => this.isLoading = false
     });
   }
@@ -138,7 +177,10 @@ export class ClientDetailsComponent implements OnInit {
     this.isLoading = true;
     this.serviceManager.reactivateServices(this.clientId, this.reactivatedServices).subscribe({
       next: () => this.message = "Services réactivés avec succès.",
-      error: () => this.error = "Erreur lors de la réactivation.",
+      error: (error) => {
+        console.error('❌ reactivateServices ERROR:', error);
+        this.error = "Erreur lors de la réactivation.";
+      },
       complete: () => this.isLoading = false
     });
   }
