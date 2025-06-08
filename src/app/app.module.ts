@@ -22,7 +22,7 @@ import { routes } from './app.routes';
 
 // Services
 import { AuthService } from './services/auth.service';
-import { AccountsService } from './services/accounts.service';
+//import { AccountsService } from './services/accounts.service';
 import { AuthInterceptor } from './services/auth.interceptor';
 
 // Toastr (si utilisé)
@@ -30,9 +30,6 @@ import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    SetPasswordComponent,
-    ChatbotComponent
   ],
   imports: [
     BrowserModule,
@@ -54,7 +51,6 @@ import { ToastrModule } from 'ngx-toastr';
   ],
   providers: [
     AuthService,
-    AccountsService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

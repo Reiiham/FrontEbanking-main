@@ -2,22 +2,22 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 
 import { ClientDashboardComponent } from './client-dashboard/client-dashboard.component';
-import { CustomerAccountsComponent } from './components/customer-accounts/customer-accounts.component';
-import { AccountDetailsComponent } from './components/account-details/account-details.component';
-import { TransactionsComponent } from './components/transactions/transactions.component';
-import { TransferComponent } from './components/transfer/transfer.component';
-import { BeneficiaryComponent } from './components/beneficiary/beneficiary.component';
+//import { CustomerAccountsComponent } from './components/customer-accounts/customer-accounts.component';
+//import { AccountDetailsComponent } from './components/account-details/account-details.component';
+//import { TransactionsComponent } from './components/transactions/transactions.component';
+//import { TransferComponent } from './components/transfer/transfer.component';
+//import { BeneficiaryComponent } from './components/beneficiary/beneficiary.component';
 
 import { SetPasswordComponent } from './components/set-password/set-password.component';
 import { AuthGuard } from './auth.guard';
 import { ResolveFn } from '@angular/router';
 import { inject } from '@angular/core';
 
-import { AccountsService } from './services/accounts.service';
+//import { AccountsService } from './services/accounts.service';
 import { BankAccount } from './admin/models/bank-account.model';
 
 // Resolver pour charger les détails d’un compte
-
+/*
 const accountResolver: ResolveFn<BankAccount> = (route) => {
   const accountsService = inject(AccountsService);
   const clientId = route.paramMap.get('clientId');
@@ -27,6 +27,8 @@ const accountResolver: ResolveFn<BankAccount> = (route) => {
   }
   return accountsService.getAccount(clientId, accountId);
 };
+
+ */
 
 export const routes: Routes = [
 
@@ -56,7 +58,7 @@ export const routes: Routes = [
     component: ClientDashboardComponent,
     canActivate: [AuthGuard]
   },
-
+/*
   {
     path: 'client/:clientId/accounts',
     component: CustomerAccountsComponent,
@@ -83,10 +85,12 @@ export const routes: Routes = [
     component: BeneficiaryComponent,
     canActivate: [AuthGuard]
   },
-
+*/
 
   // 🏠 Default and wildcard routes
 
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];
+
+

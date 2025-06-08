@@ -26,9 +26,22 @@ export class ClientListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.clientService.getAllClients().subscribe({
+      next: (clients) => {
+        console.log('✅ Clients loaded, now checking for other API calls...');
+        this.clients = clients;
+
+        // Add a small delay to see if other calls happen
+        setTimeout(() => {
+          console.log('🔍 5 seconds after client load - checking if logout happened');
+        }, 5000);
+      }
+    });
+
     console.log('🔍 ClientListComponent initialized');
     this.checkAuthOnInit();
     this.loadClients();
+
   }
 
   // Add method to check auth status on component init
@@ -124,27 +137,33 @@ export class ClientListComponent implements OnInit {
   // Add debug navigation method
   navigateToDetails(client: ClientSummaryDTO): void {
     console.log('🔍 Navigating to client details:', client);
-    console.log('🔍 Client ID:', client.clientId);
-    console.log('🔍 Client Name:', client.fullName);
 
-    // Check token before navigation
-    const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('jwt');
-    console.log('🔑 Token before navigation:', token ? 'EXISTS' : 'MISSING');
-
+    const token = localStorage.getItem('token');
     if (!token) {
       console.error('❌ No token found during navigation!');
       this.router.navigate(['/login']);
       return;
     }
 
-    // Check if client ID exists
-    if (!client.clientId) {
-      console.error('❌ Client ID is missing:', client);
-      this.error = 'ID client manquant';
+    try {
+      if (token.includes('.')) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const isExpired = payload.exp && payload.exp < Date.now() / 1000;
+
+        if (isExpired) {
+          console.error('🚨 Token is expired during navigation!');
+          localStorage.removeItem('token');
+          this.router.navigate(['/login']);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error('❌ Invalid token format:', e);
+      this.router.navigate(['/login']);
       return;
     }
 
-    console.log('✅ Navigating to /clients/' + client.clientId);
+    console.log('✅ Token is valid, navigating to /clients/' + client.clientId);
     this.router.navigate(['/clients', client.clientId]);
   }
 
@@ -197,3 +216,4 @@ export class ClientListComponent implements OnInit {
     this.loadClients();
   }
 }
+

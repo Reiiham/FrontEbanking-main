@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import { ClientService } from '../../../services/banque.service';
 import { ServiceManagerService } from '../../../services/service-manager.service';
 import { ClientSummaryDTO } from '../../models/client-summary.model';
+import {TokenService} from '../../../services/TokenService';
+import {AuthService} from '../../../services/auth.service';
+
 
 @Component({
   selector: 'app-client-details',

@@ -8,15 +8,16 @@ import { environment } from '../environments/environment';
 import {catchError, tap} from 'rxjs/operators';
 
 
+
 @Injectable({ providedIn: 'root' })
 export class ClientService {
   private baseUrl = `${environment.apiUrl}/employee`;
 
   constructor(private http: HttpClient) {}
 
-  // Helper method to get auth headers
+  // Helper method to get auth headers - FIXED to use same key as AuthService
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('jwt');
+    const token = localStorage.getItem('token'); // ✅ Même clé que AuthService
     console.log('🔑 Token found:', token ? 'YES' : 'NO');
     console.log('🔑 Token value:', token?.substring(0, 20) + '...');
 
@@ -25,17 +26,14 @@ export class ClientService {
     });
 
     if (token) {
-      // Try different auth header formats
       headers = headers.set('Authorization', `Bearer ${token}`);
-      // Some backends expect just the token
-      // headers = headers.set('Authorization', token);
+      console.log('🔑 Authorization header set');
     } else {
       console.warn('⚠️ No auth token found in localStorage!');
     }
 
     return headers;
   }
-
   // Helper method for error handling with detailed logging
   private handleError = (operation = 'operation') => {
     return (error: HttpErrorResponse): Observable<never> => {
@@ -47,8 +45,8 @@ export class ClientService {
 
       if (error.status === 401) {
         console.error('🚨 UNAUTHORIZED - Check your token!');
-        // Optionally redirect to login
-        // this.router.navigate(['/login']);
+        // Optionally clear invalid token
+        localStorage.removeItem('token');
       }
 
       return throwError(() => error);

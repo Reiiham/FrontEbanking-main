@@ -13,9 +13,9 @@ export class ServiceManagerService {
 
   constructor(private http: HttpClient) {}
 
-  // Helper method to get auth headers
+  // Helper method to get auth headers - FIXED to use same key as AuthService
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('jwt');
+    const token = localStorage.getItem('token'); // Only check 'token' key
     console.log('🔑 ServiceManager Token found:', token ? 'YES' : 'NO');
 
     let headers = new HttpHeaders({
@@ -33,6 +33,12 @@ export class ServiceManagerService {
   private handleError = (operation = 'operation') => {
     return (error: HttpErrorResponse): Observable<never> => {
       console.error(`❌ ServiceManager ${operation} failed:`, error);
+
+      if (error.status === 401) {
+        console.error('🚨 UNAUTHORIZED - Token might be invalid');
+        localStorage.removeItem('token');
+      }
+
       return throwError(() => error);
     };
   };
@@ -76,4 +82,3 @@ export class ServiceManagerService {
     );
   }
 }
-
