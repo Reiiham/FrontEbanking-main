@@ -30,7 +30,19 @@ export class AddAccountComponent implements OnInit {
     });
   }
 
-  submit(): void {
+  // submit(): void {
+  //   if (this.accountForm.invalid) return;
+  //
+  //   const payload = {
+  //     clientId: this.clientId,
+  //     ...this.accountForm.value
+  //   };
+
+  submit(event?: Event): void {
+    if (event) {
+      event.preventDefault(); // Empêche la soumission native du formulaire
+    }
+
     if (this.accountForm.invalid) return;
 
     const payload = {
@@ -41,7 +53,7 @@ export class AddAccountComponent implements OnInit {
     this.clientService.addAccount(payload).subscribe({
       next: (res: any) => {
         this.toastr.success('✅ Compte ajouté avec succès');
-        this.router.navigate(['/empolyee/clients', this.clientId]);
+        this.router.navigate(['/employee/clients', this.clientId]);
       },
       error: (err) => {
         console.error(err);
