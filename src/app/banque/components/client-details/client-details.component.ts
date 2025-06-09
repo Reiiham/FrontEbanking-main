@@ -89,11 +89,43 @@ export class ClientDetailsComponent implements OnInit {
     }
   }
 
+  // get isEligible(): boolean {
+  //   return this.client !== undefined &&
+  //     !this.client['compteBloque'] &&
+  //     this.client['documentsComplets'];
+  // }
+
+  // get isEligible(): boolean {
+  //   console.log('=== DEBUG isEligible ===');
+  //   console.log('Client:', this.client);
+  //   console.log('compteBloque:', this.client?.compteBloque, 'Type:', typeof this.client?.compteBloque);
+  //   console.log('documentsComplets:', this.client?.documentsComplets, 'Type:', typeof this.client?.documentsComplets);
+  //
+  //   if (!this.client) {
+  //     console.log('❌ Client undefined');
+  //     return false;
+  //   }
+  //
+  //   const isNotBlocked = this.client.compteBloque === false;
+  //   const hasCompleteDocuments = this.client.documentsComplets === true;
+  //
+  //   console.log('isNotBlocked:', isNotBlocked);
+  //   console.log('hasCompleteDocuments:', hasCompleteDocuments);
+  //   console.log('Final result:', isNotBlocked && hasCompleteDocuments);
+  //
+  //   return isNotBlocked && hasCompleteDocuments;
+  // }
+
   get isEligible(): boolean {
-    return this.client !== undefined &&
-      !this.client['compteBloque'] &&
-      this.client['documentsComplets'];
+    if (!this.client) return false;
+
+    // Si null, on considère comme "autorisé"
+    const isNotBlocked = (this.client.compteBloque === null || this.client.compteBloque === false);
+    const hasCompleteDocuments = (this.client.documentsComplets === null || this.client.documentsComplets === true);
+
+    return isNotBlocked && hasCompleteDocuments;
   }
+
 
   toggleService(service: string, list: string[]): void {
     const index = list.indexOf(service);
@@ -102,24 +134,36 @@ export class ClientDetailsComponent implements OnInit {
   }
 
   activate(): void {
+    console.log('🚨 ACTIVATE METHOD CALLED');
     this.clearMessages();
     console.log('🔍 Activate method called');
-    console.log(this.client);
+    console.log('🔍 Client data:', this.client);
+    console.log('🔍 Client ID:', this.clientId);
 
     // 🔁 Recharger les données du client AVANT de valider l'éligibilité
     this.clientService.getClientById(this.clientId).subscribe({
       next: (client) => {
+        console.log('🔄 Client reloaded:', client);
         this.client = client;
 
+        console.log('🔍 About to check isEligible...');
+        console.log('🔍 isEligible value:', this.isEligible);
+
         if (!this.isEligible) {
+          console.log('❌ NOT ELIGIBLE - Setting error message');
           this.error = "Le client est bloqué ou n'a pas tous les documents complets.";
           return;
         }
 
+        console.log('✅ Client is eligible, checking services...');
+
         if (this.newServices.length === 0) {
+          console.log('❌ No services selected');
           this.error = "Veuillez sélectionner des services à activer.";
           return;
         }
+
+        console.log('🔍 Services to activate:', this.newServices);
 
         const request = {
           clientId: this.clientId,
@@ -128,7 +172,10 @@ export class ClientDetailsComponent implements OnInit {
 
         this.isLoading = true;
         this.serviceManager.activateServices(request).subscribe({
-          next: () => this.message = "Services activés avec succès.",
+          next: () => {
+            console.log('✅ Services activated successfully');
+            this.message = "Services activés avec succès.";
+          },
           error: (error) => {
             console.error('❌ activateServices ERROR:', error);
             this.error = "Erreur lors de l'activation.";
@@ -142,6 +189,48 @@ export class ClientDetailsComponent implements OnInit {
       }
     });
   }
+
+  // activate(): void {
+  //   this.clearMessages();
+  //   console.log('🔍 Activate method called');
+  //   console.log(this.client);
+  //
+  //   // 🔁 Recharger les données du client AVANT de valider l'éligibilité
+  //   this.clientService.getClientById(this.clientId).subscribe({
+  //     next: (client) => {
+  //       this.client = client;
+  //
+  //       if (!this.isEligible) {
+  //         this.error = "Le client est bloqué ou n'a pas tous les documents complets.";
+  //         return;
+  //       }
+  //
+  //       if (this.newServices.length === 0) {
+  //         this.error = "Veuillez sélectionner des services à activer.";
+  //         return;
+  //       }
+  //
+  //       const request = {
+  //         clientId: this.clientId,
+  //         services: this.newServices
+  //       };
+  //
+  //       this.isLoading = true;
+  //       this.serviceManager.activateServices(request).subscribe({
+  //         next: () => this.message = "Services activés avec succès.",
+  //         error: (error) => {
+  //           console.error('❌ activateServices ERROR:', error);
+  //           this.error = "Erreur lors de l'activation.";
+  //         },
+  //         complete: () => this.isLoading = false
+  //       });
+  //     },
+  //     error: (error) => {
+  //       console.error('❌ Reload client ERROR:', error);
+  //       this.error = "Impossible de vérifier les statuts du client.";
+  //     }
+  //   });
+  // }
 
   suspend(): void {
     this.clearMessages();

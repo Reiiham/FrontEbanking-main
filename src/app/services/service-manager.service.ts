@@ -4,7 +4,7 @@ import {Observable, throwError} from 'rxjs';
 import { ActivateServicesRequest } from '../banque/models/activate-services-request.model';
 import { SuspendServicesRequest } from '../banque/models/suspend-services-request.model';
 import { environment } from '../environments/environment';
-import {catchError, tap} from 'rxjs/operators';
+import {catchError, map, tap} from 'rxjs/operators';
 
 
 @Injectable({ providedIn: 'root' })
@@ -37,15 +37,33 @@ export class ServiceManagerService {
     };
   };
 
+  // activateServices(data: ActivateServicesRequest): Observable<any> {
+  //   console.log('🔧 Calling activateServices() with data:', data);
+  //   const url = `${this.baseUrl}/clients/activer-services`;
+  //   console.log('🌐 URL:', url);
+  //
+  //   return this.http.post(url, data, {
+  //     headers: this.getAuthHeaders()
+  //   }).pipe(
+  //     tap(result => console.log('✅ Activate services result:', result)),
+  //     catchError(this.handleError('activateServices'))
+  //   );
+  // }
+
   activateServices(data: ActivateServicesRequest): Observable<any> {
     console.log('🔧 Calling activateServices() with data:', data);
     const url = `${this.baseUrl}/clients/activer-services`;
     console.log('🌐 URL:', url);
 
     return this.http.post(url, data, {
-      headers: this.getAuthHeaders()
+      headers: this.getAuthHeaders(),
+      responseType: 'text' as 'json' // ✅ This fixes the JSON parsing error
     }).pipe(
       tap(result => console.log('✅ Activate services result:', result)),
+      map(response => {
+        // Convert text response to object for consistency
+        return { message: response, status: 'success' };
+      }),
       catchError(this.handleError('activateServices'))
     );
   }
