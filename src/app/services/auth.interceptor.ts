@@ -22,7 +22,8 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.authService.getToken();
-    console.log('Intercepting request', req.url, 'token =', token); // Optionnel pour debug
+    console.log('[Interceptor] Sending to:', req.url);
+    console.log('[Interceptor] Token:', token);
 
     let authReq = req;
     if (token) {
@@ -35,12 +36,17 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401 || error.status === 403) {
-          this.authService.logout();
-          this.toastr.error('Session expirée. Veuillez vous reconnecter.');
-          this.router.navigate(['/login']);
-        }
-        return throwError(() => new Error(error.message || 'Erreur serveur'));
+        console.error('[Interceptor] Error:', error);
+
+      if (error.status === 401) {
+        console.warn('[Interceptor] 🚨 401 detected!');
+        this.toastr.error('Votre session a expiré.', 'Authentification requise');
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      }
+
+
+        return throwError(() => error);
       })
     );
   }

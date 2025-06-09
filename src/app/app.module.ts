@@ -25,7 +25,7 @@ import { AuthService } from './services/auth.service';
 import { AccountsService } from './services/accounts.service';
 import { AuthInterceptor } from './services/auth.interceptor';
 
-// Toastr (si utilisé)
+// Toastr
 import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
