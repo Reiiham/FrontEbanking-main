@@ -16,12 +16,15 @@ import { ToastrService } from 'ngx-toastr';
 export class ClientCreateComponent {
   firstName: string = '';
   lastName: string = '';
-  cin: string = ''; 
+  cin: string = '';
   email: string = '';
   tel: string = '';
   birthDate: string = '';
   accountType: string = 'courant';
   balance: number = 0;
+  documentsComplets: boolean = false;
+  compteBloque: boolean = false;
+
 
   message: string = '';
   error: string = '';
@@ -30,7 +33,7 @@ export class ClientCreateComponent {
      private router: Router,
     private toastr: ToastrService
   ) {}
-  
+
 formatDate(dateString: string): string {
   if (!dateString) return '';
   const date = new Date(dateString);
@@ -58,7 +61,7 @@ formatDate(dateString: string): string {
       next: () => {
         this.message = 'Client créé avec succès.';
         this.toastr.success('Client créé avec succès.', 'Audit log');
-        this.router.navigate(['/clients']);
+        this.router.navigate(['/employee/clients']);
       },
       error: () => {
         this.error = 'Erreur lors de la création du client.';

@@ -16,15 +16,28 @@ import { ClientStatusToggleComponent } from './components/client-status-toggle/c
 
 // Toastr support (si tu l'utilises ici)
 import { ToastrModule } from 'ngx-toastr';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import {AuthGuard} from '../auth.guard';
 
 const routes: Routes = [
- 
+  {
+    path: '',
+    component: LayoutComponent,
+    children: [
+      { path: '', component: DashboardComponent },
+      { path: 'clients', component: ClientListComponent },
+      { path: 'clients/create', component: ClientCreateComponent },
+      { path: 'clients/:id', component: ClientDetailsComponent},
+      { path: 'clients/:id/edit', component: ClientUpdateComponent },
+      { path: 'clients/:id/delete', component: ClientDeleteComponent },
+      { path: 'clients/:id/status', component: ClientStatusToggleComponent }
+    ]
+  }
 ];
 
 @NgModule({
   declarations: [
-    
+
   ],
   
     imports: [

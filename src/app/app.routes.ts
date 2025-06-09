@@ -36,7 +36,6 @@ export const routes: Routes = [
   { path: 'set-password', component: SetPasswordComponent },
 
   // 🛡️ Admin (lazy loading)
-
   {
     path: 'admin',
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule),

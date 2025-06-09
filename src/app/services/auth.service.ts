@@ -5,6 +5,7 @@ import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { LoginResponse } from '../model/login-response.model'; // Adjust the import path as necessary
+import {jwtDecode} from 'jwt-decode';
 
 // Interfaces pour les nouvelles fonctionnalités
 export interface SetPasswordRequest {
@@ -60,6 +61,7 @@ export class AuthService {
             localStorage.setItem('clientId', response.clientId);
             this.isAuthenticatedSubject.next(true);
             this.clientIdSubject.next(response.clientId);
+            console.log('Token sauvegardé', response.token);
           }
         }
       }),
@@ -186,17 +188,49 @@ export class AuthService {
   }
 
   // Vérifier si l'utilisateur est connecté
+//   isLoggedIn(): boolean {
+//
+//     if (isPlatformBrowser(this.platformId)) {
+//     const token = localStorage.getItem('token');
+//     return !!token; // retourne true si token existe, false sinon
+//   }
+//   return false;
+// }
+
   isLoggedIn(): boolean {
-
     if (isPlatformBrowser(this.platformId)) {
-    const token = localStorage.getItem('token');
-    return !!token; // retourne true si token existe, false sinon
-  }
-  return false;
-}
-  
+      const token = localStorage.getItem('token');
+      console.log('🔍 isLoggedIn check - Token exists:', !!token);
 
-  
+      if (!token) {
+        console.log('❌ No token found');
+        return false;
+      }
+
+      try {
+        const decoded: any = jwtDecode(token);
+        const exp = decoded.exp * 1000; // JWT exp est en secondes
+        const now = Date.now();
+
+        console.log('🔍 Token decoded successfully');
+        console.log('🕐 Token expires at:', new Date(exp));
+        console.log('🕐 Current time:', new Date(now));
+        console.log('🔍 Token valid:', now < exp);
+
+        return now < exp;
+      } catch (e) {
+        console.error('❌ Invalid token:', e);
+        console.log('🔍 Token content (first 50 chars):', token.substring(0, 50));
+        return false;
+      }
+    }
+    console.log('❌ Not in browser platform');
+    return false;
+  }
+
+
+
+
 
   // Observable pour l'état d'authentification
   get isAuthenticated$(): Observable<boolean> {
