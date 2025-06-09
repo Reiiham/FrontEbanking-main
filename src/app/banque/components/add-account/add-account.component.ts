@@ -41,7 +41,7 @@ export class AddAccountComponent implements OnInit {
     this.clientService.addAccount(payload).subscribe({
       next: (res: any) => {
         this.toastr.success('✅ Compte ajouté avec succès');
-        this.router.navigate(['/empolyee/clients', this.clientId]);
+        this.router.navigate(['/employee/clients', this.clientId]);
       },
       error: (err) => {
         console.error(err);

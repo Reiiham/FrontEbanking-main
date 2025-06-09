@@ -1,18 +1,20 @@
-<h2>Ajouter un nouveau compte bancaire</h2>
+<div class="add-account-container">
+  <h2>🏦 Ajouter un Nouveau Compte</h2>
 
-<form [formGroup]="accountForm" (ngSubmit)="submit()" class="account-form">
-  <div class="form-group">
-    <label for="type">Type de compte</label>
-    <select id="type" formControlName="type" class="form-control">
-      <option value="courant">Compte courant</option>
-      <option value="epargne">Compte épargne</option>
-    </select>
-  </div>
+  <form [formGroup]="accountForm" (ngSubmit)="submit()" class="account-form">
+    <div class="form-group">
+      <label for="type">Type de compte</label>
+      <select id="type" formControlName="type">
+        <option value="courant">Compte courant</option>
+        <option value="epargne">Compte épargne</option>
+      </select>
+    </div>
 
-  <div class="form-group">
-    <label for="balance">Solde initial</label>
-    <input type="number" id="balance" formControlName="balance" class="form-control" placeholder="Montant initial">
-  </div>
+    <div class="form-group">
+      <label for="balance">Solde initial</label>
+      <input type="number" id="balance" formControlName="balance" />
+    </div>
 
-  <button class="btn btn-primary" type="submit" [disabled]="accountForm.invalid">Créer le compte</button>
-</form>
+    <button class="btn-submit" type="submit" [disabled]="accountForm.invalid">Créer le compte</button>
+  </form>
+</div>
