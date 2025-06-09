@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AIAssistantService, AIResponse } from '../../services/ai-assistant.service';
+import { AuthService } from '../../services/auth.service'; // Import AuthService
 
 interface Message {
   id: number;
@@ -49,23 +50,56 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
 
   constructor(
     private http: HttpClient,
-    private aiAssistantService: AIAssistantService
+    private aiAssistantService: AIAssistantService,
+    private authService: AuthService // Inject AuthService
   ) {}
 
   ngOnInit() {
-    // Handle clientId properly
-    this.effectiveClientId = this.clientId || '123'; // Fallback to default
-
-    if (!this.clientId) {
-      console.warn('ChatbotComponent: No clientId provided, using fallback');
-    }
-
+    // FIX: Better clientId resolution
+    this.resolveClientId();
     this.initializeChat();
     this.checkAssistantHealth();
   }
 
   ngAfterViewChecked() {
     this.scrollToBottom();
+  }
+
+  /**
+   * FIX: Improved clientId resolution
+   */
+  private resolveClientId(): void {
+    // Priority order:
+    // 1. Input parameter
+    // 2. AuthService current clientId
+    // 3. AuthService stored clientId
+    // 4. Fallback to '4'
+
+    if (this.clientId) {
+      this.effectiveClientId = this.clientId;
+      console.log('🆔 Using clientId from @Input:', this.effectiveClientId);
+      return;
+    }
+
+    // Try to get from AuthService
+    const authClientId = this.authService.getClientId();
+    if (authClientId) {
+      this.effectiveClientId = authClientId;
+      console.log('🆔 Using clientId from AuthService:', this.effectiveClientId);
+      return;
+    }
+
+    // Try to get from localStorage directly (fallback)
+    const storedClientId = localStorage.getItem('clientId');
+    if (storedClientId) {
+      this.effectiveClientId = storedClientId;
+      console.log('🆔 Using clientId from localStorage:', this.effectiveClientId);
+      return;
+    }
+
+    // Last resort fallback
+    this.effectiveClientId = '4';
+    console.warn('⚠️ No clientId found, using fallback:', this.effectiveClientId);
   }
 
   /**
@@ -127,6 +161,12 @@ Que souhaitez-vous faire ?`;
 
   sendMessage() {
     if (!this.currentMessage.trim()) return;
+
+    // FIX: Check if we have a valid clientId before sending
+    if (!this.effectiveClientId) {
+      this.addBotMessage("❌ Erreur : Impossible d'identifier votre compte. Veuillez vous reconnecter.");
+      return;
+    }
 
     this.addUserMessage(this.currentMessage);
     const userMessage = this.currentMessage;
@@ -282,18 +322,25 @@ Que souhaitez-vous faire ?`;
     // Add the AI response text first
     this.addBotMessage(response.responseText);
 
-    // Perform specific actions based on detected intent
+    // Pour check_balance, NE PAS faire d'appel supplémentaire
+    // La réponse AI contient déjà toutes les informations nécessaires
     if (response.intent) {
       console.log('🎯 Handling intent:', response.intent);
 
       switch (response.intent.toLowerCase()) {
         case 'check_balance':
         case 'account_balance':
-          this.getAccountBalance();
+          // ❌ SUPPRIMEZ cette ligne qui cause le double appel
+          // this.getAccountBalance();
+
+          // ✅ La réponse AI contient déjà le solde, pas besoin d'appel supplémentaire
+          console.log('💰 Balance already provided in AI response');
           break;
 
         case 'get_transactions':
         case 'transaction_history':
+          // Pour les transactions, vous pouvez garder l'appel supplémentaire
+          // si vous voulez un format spécial dans le chat
           this.getTransactions();
           break;
 
@@ -316,8 +363,7 @@ Que souhaitez-vous faire ?`;
           console.log('🤷 Unknown intent, AI response only');
           break;
       }
-    }
-  }
+    }}
 
   getAccountBalance() {
     this.aiAssistantService.getAccountBalance(this.effectiveClientId).subscribe({
