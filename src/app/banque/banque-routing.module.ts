@@ -12,6 +12,7 @@ import { ClientStatusToggleComponent } from './components/client-status-toggle/c
 import { TransactionSelectorComponent } from './components/transaction-selector/transaction-selector.component';
 import {VirementComponent} from './components/virement/virement.component';
 import { OperationComponent } from './components/operation/operation.component';
+import {AddAccountComponent} from './components/add-account/add-account.component';
 
 
 
@@ -28,6 +29,7 @@ const routes: Routes = [
       { path: 'clients/:id/edit', component: ClientUpdateComponent },
       { path: 'clients/:id/delete', component: ClientDeleteComponent },
       { path: 'clients/:id/status', component: ClientStatusToggleComponent },
+      { path: 'clients/:id/add-account', component: AddAccountComponent},
 
       {
         path: 'transactions',
