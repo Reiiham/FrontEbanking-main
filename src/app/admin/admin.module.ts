@@ -9,6 +9,7 @@ import { SettingsListComponent } from './settings/settings-list/settings-list.co
 import { CurrencyFormComponent } from './currency/currency-form/currency-form.component';
 import { SettingsEditFormComponent } from './settings/settings-edit-form/settings-edit-form.component';
 import { AddEmployeeComponent } from './add-employee/add-employee.component';
+import {TransferComponent} from './transfer/transfer.component';
 
 const adminRoutes: Routes = [
   {
@@ -21,7 +22,8 @@ const adminRoutes: Routes = [
       { path: 'currencies/edit/:id', component: CurrencyFormComponent },
       { path: 'settings', component: SettingsListComponent },
       { path: 'settings/edit/:id', component: SettingsEditFormComponent },
-      { path: 'create-employee', component: AddEmployeeComponent }
+      { path: 'create-employee', component: AddEmployeeComponent },
+      { path: 'transfer', component: TransferComponent },
     ]
   }
 ];
