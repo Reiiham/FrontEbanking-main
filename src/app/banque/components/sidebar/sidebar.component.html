@@ -20,7 +20,7 @@
 
     <hr />
 
-    <ul *ngIf="clientId && !isCreatingClient">
+        <ul *ngIf="clientId && !isCreatingClient">
       <li>
         <a [routerLink]="['clients', clientId]" routerLinkActive="active">
           <i class="fas fa-file-alt"></i> Voir les Détails
@@ -29,6 +29,12 @@
       <li>
         <a [routerLink]="['clients', clientId, 'edit']" routerLinkActive="active">
           <i class="fas fa-pen"></i> Modifier
+        </a>
+      </li>
+       <!-- ✅ Nouveau bouton : Ajouter un compte -->
+      <li>
+        <a [routerLink]="['clients', clientId, 'add-account']" routerLinkActive="active">
+          <i class="fas fa-university"></i> Ajouter un Compte
         </a>
       </li>
       <li>
@@ -41,6 +47,8 @@
           <i class="fas fa-trash"></i> Supprimer
         </a>
       </li>
+     
     </ul>
+
   </nav>
 </aside>

@@ -55,6 +55,17 @@ export class ClientService {
     };
   };
 
+  addAccount(data: any): Observable<any> {
+  const url = `${this.baseUrl}/clients/add-account`;
+  return this.http.post(url, data, {
+    headers: this.getAuthHeaders(),  // ⬅️ Ce header doit inclure le token !
+    responseType: 'json'
+  });
+}
+
+
+
+
   getAccountCount(): Observable<number> {
     console.log('📊 Calling getAccountCount()');
     const url = `${this.baseUrl}/accounts/count`;

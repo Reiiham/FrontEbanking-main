@@ -63,19 +63,29 @@ export class AuthInterceptor implements HttpInterceptor {
    * Détermine si on doit éviter la redirection automatique
    */
   private shouldSkipAutoRedirect(url: string, error: HttpErrorResponse): boolean {
-    // Skip pour les opérations d'update/delete qui peuvent avoir des erreurs business
-    if (url.includes('/update') || url.includes('/delete')) {
+  // Ignorer redirection auto pour certaines opérations métiers
+  if (
+    url.includes('/update') ||
+    url.includes('/delete') ||
+    url.includes('/clients/add-account') // ✅ Ajoute cette ligne
+  ) {
+    return true;
+  }
+
+  // Ignorer si l'erreur est un message métier spécifique
+  if (error.error && typeof error.error === 'string') {
+    const errorMsg = error.error.toLowerCase();
+    if (
+      errorMsg.includes('supervisor') ||
+      errorMsg.includes('password') ||
+      errorMsg.includes('code') ||
+      errorMsg.includes('bloqué') // ✅ Ajoute ça si le message d’erreur contient "bloqué"
+    ) {
       return true;
     }
-    
-    // Skip si l'erreur contient un message spécifique (ex: "Invalid supervisor code")
-    if (error.error && typeof error.error === 'string') {
-      const errorMsg = error.error.toLowerCase();
-      if (errorMsg.includes('supervisor') || errorMsg.includes('password') || errorMsg.includes('code')) {
-        return true;
-      }
-    }
-    
-    return false;
   }
+
+  return false;
+}
+
 }

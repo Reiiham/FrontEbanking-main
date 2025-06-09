@@ -18,6 +18,7 @@ import { ClientStatusToggleComponent } from './components/client-status-toggle/c
 import { ToastrModule } from 'ngx-toastr';
 import {AuthGuard} from '../auth.guard';
 import {VirementComponent} from './components/virement/virement.component';
+import { AddAccountComponent } from './components/add-account/add-account.component';
 
 
 const routes: Routes = [
@@ -30,6 +31,7 @@ const routes: Routes = [
       { path: 'clients/create', component: ClientCreateComponent },
       { path: 'clients/:id', component: ClientDetailsComponent},
       { path: 'clients/:id/edit', component: ClientUpdateComponent },
+      { path: 'clients/:id/add-account', component: AddAccountComponent },
       { path: 'clients/:id/delete', component: ClientDeleteComponent },
       { path: 'clients/:id/status', component: ClientStatusToggleComponent }
     ]
