@@ -79,7 +79,7 @@ export class ClientUpdateComponent implements OnInit {
       console.log('✅ Réponse reçue:', response);
       this.message = 'Client mis à jour avec succès ✅';
       setTimeout(() => {
-        this.router.navigate(['/clients']);
+      this.router.navigate(['/employee/clients']);
       }, 1000);
     },
     error: (err) => {
