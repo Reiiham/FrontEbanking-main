@@ -155,7 +155,8 @@ export class ClientService {
     console.log('🌐 URL:', url);
 
     return this.http.put(url, data, {
-      headers: this.getAuthHeaders()
+      headers: this.getAuthHeaders(),
+      responseType: 'text' // << ✅ ajouter ça
     }).pipe(
       tap(result => console.log('✅ Update client result:', result)),
       catchError(this.handleError('updateClient'))
