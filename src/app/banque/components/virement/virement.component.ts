@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import {ReactiveFormsModule, FormGroup, Validators, FormBuilder} from '@angular/forms';
 import { VirementService } from '../../../services/virement.service';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-virement',
@@ -15,7 +16,7 @@ export class VirementComponent {
   successMessage = '';
   errorMessage = '';
 
-  constructor(private fb: FormBuilder, private virementService: VirementService) {
+  constructor(private fb: FormBuilder, private virementService: VirementService, private toastr: ToastrService) {
     this.virementForm = this.fb.group({
       fromAccountId: ['', Validators.required],
       toRib: ['', Validators.required],
@@ -30,14 +31,13 @@ export class VirementComponent {
 
     this.virementService.effectuerVirement(data).subscribe({
       next: res => {
-        this.successMessage = res;
-        this.errorMessage = '';
+        this.toastr.success('Virement effectué avec succès ✅');
         this.virementForm.reset();
       },
       error: err => {
-        this.errorMessage = err.error || 'Erreur inconnue';
-        this.successMessage = '';
+        this.toastr.error(err.error || 'Erreur inconnue ❌');
       }
     });
   }
+
 }

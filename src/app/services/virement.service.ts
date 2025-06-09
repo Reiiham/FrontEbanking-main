@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class VirementService {
-  private apiUrl = 'http://localhost:8080/employee/transfer'; // adapte l'URL si besoin
+  private apiUrl = 'http://localhost:8090/eBankingVer1_war_exploded/api/employee/employee/transfer'; // adapte l'URL si besoin
 
   constructor(private http: HttpClient) {}
 
