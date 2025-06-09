@@ -21,6 +21,8 @@ export class ClientUpdateComponent implements OnInit {
   updatedEmail = '';
   updatedPhone = '';
   supervisorPassword = '';
+  updatedDocumentsComplets: boolean = false;
+  updatedCompteBloque: boolean = false;
 
   message = '';
   error = '';

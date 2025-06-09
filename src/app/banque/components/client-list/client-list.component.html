@@ -40,7 +40,7 @@
           <td>{{ client.accounts?.length || 0 }}</td>
           <td>{{ getTotalBalance(client) | currency:'MAD' }}</td>
           <td>
-            <a [routerLink]="['/clients', client.clientId]">
+            <a [routerLink]="['/employee/clients', client.clientId]">
               <button class="btn-details">Voir Détails</button>
             </a>
           </td>

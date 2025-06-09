@@ -25,6 +25,21 @@
       <input [(ngModel)]="updatedPhone" name="phone" />
     </div>
 
+    <div class="form-group">
+      <label>
+        <input type="checkbox" [(ngModel)]="updatedDocumentsComplets" name="documentsComplets" />
+        Documents complets ?
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label>
+        <input type="checkbox" [(ngModel)]="updatedCompteBloque" name="compteBloque" />
+        Compte bloqué ?
+      </label>
+    </div>
+
+
     <div class="form-group full-width">
       <label>Mot de passe superviseur :</label>
       <input type="password" [(ngModel)]="supervisorPassword" name="password" required />

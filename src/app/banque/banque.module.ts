@@ -16,6 +16,7 @@ import { ClientStatusToggleComponent } from './components/client-status-toggle/c
 
 // Toastr support (si tu l'utilises ici)
 import { ToastrModule } from 'ngx-toastr';
+import {AuthGuard} from '../auth.guard';
 
 const routes: Routes = [
   {
@@ -25,7 +26,7 @@ const routes: Routes = [
       { path: '', component: DashboardComponent },
       { path: 'clients', component: ClientListComponent },
       { path: 'clients/create', component: ClientCreateComponent },
-      { path: 'clients/:id', component: ClientDetailsComponent },
+      { path: 'clients/:id', component: ClientDetailsComponent},
       { path: 'clients/:id/edit', component: ClientUpdateComponent },
       { path: 'clients/:id/delete', component: ClientDeleteComponent },
       { path: 'clients/:id/status', component: ClientStatusToggleComponent }
@@ -35,7 +36,7 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-    
+
   ],
   imports: [
     CommonModule,
