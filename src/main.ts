@@ -14,13 +14,11 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
     provideHttpClient(withFetch()),
-
     provideAnimations(), // 👈 Required for Toastr
     provideToastr({
       positionClass: 'toast-bottom-right',
       preventDuplicates: true
     })
-
   ]
 });
 

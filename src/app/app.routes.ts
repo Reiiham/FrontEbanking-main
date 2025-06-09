@@ -49,6 +49,12 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
 
+  {
+    path: 'clients',
+    loadComponent: () => import('./banque/components/client-list/client-list.component').then(m => m.ClientListComponent)
+  },
+
+
   // 👤 Client space
   {
     path: 'client/:clientId/dashboard',

@@ -16,8 +16,9 @@ import { ClientStatusToggleComponent } from './components/client-status-toggle/c
 
 // Toastr support (si tu l'utilises ici)
 import { ToastrModule } from 'ngx-toastr';
-
 import {AuthGuard} from '../auth.guard';
+import {VirementComponent} from './components/virement/virement.component';
+
 
 const routes: Routes = [
   {
@@ -39,23 +40,17 @@ const routes: Routes = [
   declarations: [
 
   ],
-  
-    imports: [
-      CommonModule,
-      FormsModule,
-      ReactiveFormsModule,
-      RouterModule,
-      BanqueRoutingModule,
-      ToastrModule,
-      LayoutComponent,
-      DashboardComponent,
-      ClientListComponent,
-      ClientDetailsComponent,
-      ClientCreateComponent,
-      ClientUpdateComponent,
-      ClientDeleteComponent,
-      ClientStatusToggleComponent
-]
+
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule,
+    BanqueRoutingModule,
+    ToastrModule,
+    VirementComponent,
+    // Optionnel si déjà importé globalement dans AppModule
+  ]
 
 })
 export class BanqueModule {}
