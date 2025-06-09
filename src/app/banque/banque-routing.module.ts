@@ -11,6 +11,9 @@ import { ClientDeleteComponent } from './components/client-delete/client-delete.
 import { ClientStatusToggleComponent } from './components/client-status-toggle/client-status-toggle.component';
 import { TransactionSelectorComponent } from './components/transaction-selector/transaction-selector.component';
 import {VirementComponent} from './components/virement/virement.component';
+import { OperationComponent } from './components/operation/operation.component';
+
+
 
 
 const routes: Routes = [
@@ -25,13 +28,19 @@ const routes: Routes = [
       { path: 'clients/:id/edit', component: ClientUpdateComponent },
       { path: 'clients/:id/delete', component: ClientDeleteComponent },
       { path: 'clients/:id/status', component: ClientStatusToggleComponent },
-      { path: 'transactions', component: TransactionSelectorComponent,
+
+      {
+        path: 'transactions',
+        component: TransactionSelectorComponent,
         children: [
-          { path: 'virement', component: VirementComponent }]},
-      // { path: 'transactions/virement', component: VirementComponent },
+          { path: 'virement', component: VirementComponent },
+          { path: 'operation', component: OperationComponent }  // ✅ Ajouté ici
+        ]
+      }
     ]
   }
 ];
+
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
