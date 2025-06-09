@@ -36,7 +36,7 @@ const routes: Routes = [
         component: TransactionSelectorComponent,
         children: [
           { path: 'virement', component: VirementComponent },
-          { path: 'operation', component: OperationComponent }  // ✅ Ajouté ici
+          { path: 'operation', component: OperationComponent }
         ]
       }
     ]
