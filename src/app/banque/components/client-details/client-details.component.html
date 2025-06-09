@@ -1,6 +1,13 @@
 <div class="client-details-container">
   <h2>Détails du Client</h2>
 
+<!--  <div style="background: yellow; padding: 10px;">-->
+<!--    <p>DEBUG: Client = {{ client | json }}</p>-->
+<!--    <p>DEBUG: isEligible = {{ isEligible }}</p>-->
+<!--    <p>DEBUG: newServices = {{ newServices | json }}</p>-->
+<!--    <p>DEBUG: activeTab = {{ activeTab }}</p>-->
+<!--  </div>-->
+
   <div *ngIf="client" class="client-info">
   <p><strong>👤 Nom :</strong> {{ client.fullName }}</p>
   <p><strong>🆔 ID :</strong> {{ client.clientId }}</p>
