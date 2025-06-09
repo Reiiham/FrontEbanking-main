@@ -3,11 +3,19 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
-
+import { switchMap } from 'rxjs/operators';
 export interface AIResponse {
   responseText: string;
   success: boolean;
   intent?: string;
+}
+
+// Backend response interface to match your API
+interface BackendAssistantResponse {
+  success: boolean;
+  response: string;
+  intent?: string;
+  language: string;
 }
 
 @Injectable({
@@ -38,10 +46,7 @@ export class AIAssistantService {
     // const basicAuth = btoa(`${username}:${password}`);
     // headers = headers.set('Authorization', `Basic ${basicAuth}`);
 
-    // Option 3: If you're using session-based auth, make sure cookies are included
-    // This is handled by withCredentials option below
-
-    console.log('🔐 Final headers:', headers);
+    console.log('🔐 Final headers:', headers.keys());
     return headers;
   }
 
@@ -51,35 +56,64 @@ export class AIAssistantService {
     const url = `${this.baseUrl}/${clientId}/assistant`;
     const headers = this.getAuthHeaders();
 
-    // Créer les paramètres pour la requête
+    // Create request body that matches your backend expectation
+    const requestBody = {
+      request: message  // Backend expects "request" key, not the message directly
+    };
+
+    // Create query parameters
     const params = new HttpParams().set('language', language);
 
     console.log('📡 Making authenticated HTTP request to:', url);
+    console.log('📡 With body:', requestBody);
     console.log('📡 With params:', params.toString());
 
-    return this.http.post<AIResponse>(url, message, {
-      params: params,        // Les paramètres sont correctement passés ici
+    return this.http.post<BackendAssistantResponse>(url, requestBody, {
+      params: params,
       headers: headers,
       withCredentials: true
     }).pipe(
       tap(response => {
-        console.log('✅ Authenticated response received:', response);
+        console.log('✅ Backend response received:', response);
       }),
-      map(response => {
-        const intent = this.extractIntentFromResponse(response.responseText);
-        return {
-          ...response,
-          intent: intent || response.intent
+      map(backendResponse => {
+        // Transform backend response to match frontend interface
+        const transformedResponse: AIResponse = {
+          responseText: backendResponse.response,
+          success: backendResponse.success,
+          intent: backendResponse.intent
         };
+
+        console.log('🔄 Transformed response:', transformedResponse);
+        return transformedResponse;
       }),
       catchError(error => {
-        console.error('❌ Authentication error:', error);
-        console.error('❌ Full error object:', error);
+        console.error('❌ API error:', error);
+        console.error('❌ Error status:', error.status);
+        console.error('❌ Error body:', error.error);
 
         if (error.status === 401) {
           console.error('🔐 Authentication failed - check your credentials');
           return of({
             responseText: 'Session expirée. Veuillez vous reconnecter.',
+            success: false,
+            intent: undefined
+          });
+        } else if (error.status === 403) {
+          // Handle forbidden access or service not activated
+          const errorMessage = error.error?.error || 'Accès refusé';
+          console.error('🚫 Forbidden access:', errorMessage);
+          return of({
+            responseText: errorMessage,
+            success: false,
+            intent: undefined
+          });
+        } else if (error.status === 400) {
+          // Handle bad request
+          const errorMessage = error.error?.error || 'Requête invalide';
+          console.error('❌ Bad request:', errorMessage);
+          return of({
+            responseText: errorMessage,
             success: false,
             intent: undefined
           });
@@ -90,13 +124,41 @@ export class AIAssistantService {
             success: false,
             intent: undefined
           });
+        } else if (error.status === 500) {
+          // Handle server error
+          const errorMessage = error.error?.error || 'Erreur serveur interne';
+          console.error('💥 Server error:', errorMessage);
+          return of({
+            responseText: `Erreur serveur: ${errorMessage}`,
+            success: false,
+            intent: undefined
+          });
         }
 
         return of({
-          responseText: `Erreur de communication avec le serveur.`,
+          responseText: `Erreur de communication avec le serveur (${error.status}).`,
           success: false,
           intent: undefined
         });
+      })
+    );
+  }
+
+  // Check if assistant service is available and healthy
+  checkAssistantHealth(): Observable<{modelAvailable: boolean}> {
+    const url = `${this.baseUrl}/assistant/health`;
+    const headers = this.getAuthHeaders();
+
+    return this.http.get<{modelAvailable: boolean}>(url, {
+      headers,
+      withCredentials: true
+    }).pipe(
+      tap(response => {
+        console.log('🏥 Assistant health check:', response);
+      }),
+      catchError(error => {
+        console.error('❌ Health check failed:', error);
+        return of({ modelAvailable: false });
       })
     );
   }
@@ -125,42 +187,18 @@ export class AIAssistantService {
   }
 
   // Test method with different auth approaches
-  testWithDifferentAuth(clientId: string, message: string): Observable<any> {
-    const url = `${this.baseUrl}/${clientId}/assistant?language=fr`;
+  testConnection(clientId: string, message: string = "test"): Observable<any> {
+    console.log('🧪 Testing connection to assistant service...');
 
-    // Test 1: With JWT from localStorage
-    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-    if (token) {
-      console.log('🧪 Testing with JWT token...');
-      const headers = new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      });
+    // First check health
+    return this.checkAssistantHealth().pipe(
+      switchMap(healthResponse => {
+        if (!healthResponse.modelAvailable) {
+          console.warn('⚠️ AI model not available');
+        }
 
-      return this.http.post(url, message, { headers }).pipe(
-        tap(() => console.log('✅ JWT auth worked')),
-        catchError(error => {
-          console.log('❌ JWT auth failed:', error.status);
-          return this.testWithCookies(url, message);
-        })
-      );
-    }
-
-    return this.testWithCookies(url, message);
-  }
-
-  private testWithCookies(url: string, message: string): Observable<any> {
-    console.log('🧪 Testing with cookies/session...');
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-
-    return this.http.post(url, message, {
-      headers,
-      withCredentials: true
-    }).pipe(
-      tap(() => console.log('✅ Cookie auth worked')),
-      catchError(error => {
-        console.log('❌ Cookie auth failed:', error.status);
-        throw error;
+        // Then test actual message processing
+        return this.processMessage(clientId, message, 'fr');
       })
     );
   }
@@ -179,7 +217,7 @@ export class AIAssistantService {
     return undefined;
   }
 
-  // Other methods with auth headers
+  // Other methods with auth headers (updated to match your backend structure)
   getAccountBalance(clientId: string): Observable<any[]> {
     const headers = this.getAuthHeaders();
     return this.http.get<any[]>(`${this.baseUrl}/${clientId}/accounts`, {
@@ -190,7 +228,9 @@ export class AIAssistantService {
 
   getTransactions(clientId: string, page: number = 0, size: number = 5): Observable<any> {
     const headers = this.getAuthHeaders();
-    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
 
     return this.http.get<any>(`${this.baseUrl}/${clientId}/transactions`, {
       headers,
