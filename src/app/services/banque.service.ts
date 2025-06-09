@@ -150,17 +150,19 @@ export class ClientService {
   }
 
   updateClient(data: ClientUpdateRequest): Observable<any> {
-    console.log('✏️ Calling updateClient() with data:', data);
-    const url = `${this.baseUrl}/update`;
-    console.log('🌐 URL:', url);
+  console.log('✏️ Calling updateClient() with data:', data);
+  const url = `${this.baseUrl}/update`;
+  console.log('🌐 URL:', url);
 
-    return this.http.put(url, data, {
-      headers: this.getAuthHeaders()
-    }).pipe(
-      tap(result => console.log('✅ Update client result:', result)),
-      catchError(this.handleError('updateClient'))
-    );
-  }
+  return this.http.put(url, data, {
+    headers: this.getAuthHeaders(),
+    responseType: 'text' // << ✅ ajouter ça
+  }).pipe(
+    tap(result => console.log('✅ Update client result:', result)),
+    catchError(this.handleError('updateClient'))
+  );
+}
+
 
   deleteClient(payload: { clientId: string; supervisorCode: string }): Observable<any> {
     console.log('🗑️ Calling deleteClient() with payload:', payload);
@@ -183,14 +185,13 @@ export class ClientService {
     console.log('📊 Params:', { compteBloque, documentsComplets });
 
     return this.http.put(url, null, {
-      headers: this.getAuthHeaders(),
-      params: {
-        compteBloque: compteBloque.toString(),
-        documentsComplets: documentsComplets.toString()
-      }
-    }).pipe(
-      tap(result => console.log('✅ Toggle status result:', result)),
-      catchError(this.handleError('toggleClientStatus'))
-    );
+  headers: this.getAuthHeaders(),
+  params: {
+    compteBloque: compteBloque.toString(),
+    documentsComplets: documentsComplets.toString()
+  },
+  responseType: 'text' as 'json' // 👈 ajoute cette ligne
+});
+
   }
 }

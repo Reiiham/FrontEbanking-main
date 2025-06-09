@@ -174,3 +174,20 @@ button:hover {
     width: 100%;
   }
 }
+.checkbox-group {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}

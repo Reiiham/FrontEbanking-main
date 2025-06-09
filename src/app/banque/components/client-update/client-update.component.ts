@@ -54,23 +54,40 @@ export class ClientUpdateComponent implements OnInit {
   }
 
   update(): void {
-    if (!this.client) return;
+  if (!this.client) return;
 
-    const payload: ClientUpdateRequest = {
-      clientId: this.client.clientId,
-      newFirstName: this.updatedFirstName,
-      newLastName: this.updatedLastName,
-      newEmail: this.updatedEmail,
-      newTel: this.updatedPhone,
-      supervisorPassword: this.supervisorPassword
-    };
 
-    this.clientService.updateClient(payload).subscribe({
-      next: () => {
-        this.message = 'Client mis à jour avec succès';
+  // if (!this.authService.isLoggedIn()) {
+  //   this.error = 'Session expirée, veuillez vous reconnecter';
+  //   this.router.navigate(['/login']);
+  //   return;
+  // }
+
+  const payload: ClientUpdateRequest = {
+    clientId: this.client.clientId,
+    newFirstName: this.updatedFirstName,
+    newLastName: this.updatedLastName,
+    newEmail: this.updatedEmail,
+    newTel: this.updatedPhone,
+    supervisorCode: this.supervisorPassword
+  };
+
+  console.log('🚀 Envoi de la mise à jour:', payload);
+  
+  this.clientService.updateClient(payload).subscribe({
+    next: (response) => {
+      console.log('✅ Réponse reçue:', response);
+      this.message = 'Client mis à jour avec succès ✅';
+      setTimeout(() => {
         this.router.navigate(['/clients']);
-      },
-      error: () => this.error = 'Erreur de mise à jour ou mot de passe invalide.'
-    });
-  }
+      }, 1000);
+    },
+    error: (err) => {
+      console.error('❌ Erreur complète:', err);
+      console.error('❌ Status:', err.status);
+      console.error('❌ Message:', err.message);
+      this.error = 'Erreur de mise à jour ou mot de passe invalide ❌';
+    }
+  });
+}
 }

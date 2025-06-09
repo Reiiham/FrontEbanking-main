@@ -38,16 +38,44 @@ export class AuthInterceptor implements HttpInterceptor {
       catchError((error: HttpErrorResponse) => {
         console.error('[Interceptor] Error:', error);
 
-      if (error.status === 401) {
-        console.warn('[Interceptor] 🚨 401 detected!');
-        this.toastr.error('Votre session a expiré.', 'Authentification requise');
-        this.authService.logout();
-        this.router.navigate(['/login']);
-      }
-
+        if (error.status === 401) {
+          console.warn('[Interceptor] 🚨 401 detected on:', req.url);
+          
+          // ✅ Ne pas rediriger automatiquement pour certaines opérations
+          const shouldSkipRedirect = this.shouldSkipAutoRedirect(req.url, error);
+          
+          if (!shouldSkipRedirect) {
+            console.warn('[Interceptor] Auto-redirecting to login');
+            this.toastr.error('Votre session a expiré.', 'Authentification requise');
+            this.authService.logout();
+            this.router.navigate(['/login']);
+          } else {
+            console.warn('[Interceptor] Skipping auto-redirect for:', req.url);
+          }
+        }
 
         return throwError(() => error);
       })
     );
+  }
+
+  /**
+   * Détermine si on doit éviter la redirection automatique
+   */
+  private shouldSkipAutoRedirect(url: string, error: HttpErrorResponse): boolean {
+    // Skip pour les opérations d'update/delete qui peuvent avoir des erreurs business
+    if (url.includes('/update') || url.includes('/delete')) {
+      return true;
+    }
+    
+    // Skip si l'erreur contient un message spécifique (ex: "Invalid supervisor code")
+    if (error.error && typeof error.error === 'string') {
+      const errorMsg = error.error.toLowerCase();
+      if (errorMsg.includes('supervisor') || errorMsg.includes('password') || errorMsg.includes('code')) {
+        return true;
+      }
+    }
+    
+    return false;
   }
 }

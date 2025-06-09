@@ -48,16 +48,17 @@
       <input type="number" id="balance" name="balance" [(ngModel)]="balance" required />
     </div>
 
-    <div class="form-group">
-      <label>
-        <input type="checkbox" [(ngModel)]="documentsComplets" name="documentsComplets" />
-        Documents complets ?
-      </label>
-      <label>
-        <input type="checkbox" [(ngModel)]="compteBloque" name="compteBloque" />
-        Compte bloqué ?
-      </label>
+    <div class="form-group checkbox-group">
+      <div class="checkbox-item">
+        <input type="checkbox" id="documentsComplets" [(ngModel)]="documentsComplets" name="documentsComplets" />
+        <label for="documentsComplets">Documents complets ?</label>
+      </div>
+      <div class="checkbox-item">
+        <input type="checkbox" id="compteBloque" [(ngModel)]="compteBloque" name="compteBloque" />
+        <label for="compteBloque">Compte bloqué ?</label>
+      </div>
     </div>
+
 
 
     <div class="form-actions">
