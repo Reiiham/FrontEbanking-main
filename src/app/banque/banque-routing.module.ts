@@ -9,6 +9,9 @@ import { ClientCreateComponent } from './components/client-create/client-create.
 import { ClientUpdateComponent } from './components/client-update/client-update.component';
 import { ClientDeleteComponent } from './components/client-delete/client-delete.component';
 import { ClientStatusToggleComponent } from './components/client-status-toggle/client-status-toggle.component';
+import { TransactionSelectorComponent } from './components/transaction-selector/transaction-selector.component';
+import {VirementComponent} from './components/virement/virement.component';
+
 
 const routes: Routes = [
   {
@@ -21,7 +24,11 @@ const routes: Routes = [
       { path: 'clients/:id', component: ClientDetailsComponent },
       { path: 'clients/:id/edit', component: ClientUpdateComponent },
       { path: 'clients/:id/delete', component: ClientDeleteComponent },
-      { path: 'clients/:id/status', component: ClientStatusToggleComponent }
+      { path: 'clients/:id/status', component: ClientStatusToggleComponent },
+      { path: 'transactions', component: TransactionSelectorComponent,
+        children: [
+          { path: 'virement', component: VirementComponent }]},
+      // { path: 'transactions/virement', component: VirementComponent },
     ]
   }
 ];

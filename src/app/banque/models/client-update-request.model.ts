@@ -4,5 +4,5 @@ export interface ClientUpdateRequest {
   newLastName: string;
   newEmail: string;
   newTel: string;
-  supervisorPassword: string;
+  supervisorCode: string;
 }

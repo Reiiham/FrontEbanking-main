@@ -1,0 +1,18 @@
+<h2>Effectuer un Virement</h2>
+
+<form [formGroup]="virementForm" (ngSubmit)="effectuerVirement()">
+  <label>Compte source (ID) :</label>
+  <input type="number" formControlName="fromAccountId" />
+
+  <label>RIB du destinataire :</label>
+  <input type="text" formControlName="toRib" />
+
+  <label>Montant :</label>
+  <input type="number" formControlName="amount" />
+
+  <button type="submit" [disabled]="virementForm.invalid">Valider</button>
+</form>
+
+<div *ngIf="successMessage" style="color: green;">{{ successMessage }}</div>
+<div *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</div>
+

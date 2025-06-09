@@ -20,7 +20,7 @@ export class ClientUpdateComponent implements OnInit {
   updatedLastName = '';
   updatedEmail = '';
   updatedPhone = '';
-  supervisorPassword = '';
+  supervisorCode = '';
   updatedDocumentsComplets: boolean = false;
   updatedCompteBloque: boolean = false;
 
@@ -62,7 +62,7 @@ export class ClientUpdateComponent implements OnInit {
       newLastName: this.updatedLastName,
       newEmail: this.updatedEmail,
       newTel: this.updatedPhone,
-      supervisorPassword: this.supervisorPassword
+      supervisorCode: this.supervisorCode
     };
 
     this.clientService.updateClient(payload).subscribe({
