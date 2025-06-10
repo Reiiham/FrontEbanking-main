@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 // Angular Material Modules
@@ -14,30 +14,30 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
 
-// App Components & Routing
+// App Components
 import { AppComponent } from './app.component';
 import { SetPasswordComponent } from './components/set-password/set-password.component';
 import { ChatbotComponent } from './components/chatbot/chatbot.component';
-import { routes } from './app.routes';
+import { ClientDashboardComponent } from './client-dashboard/client-dashboard.component';
 
 // Services
 import { AuthService } from './services/auth.service';
-import { AccountsService } from './services/accounts.service';
+import { RechargeService } from './services/recharge.service';
+import { CryptoService } from './services/crypto.service';
 import { AuthInterceptor } from './services/auth.interceptor';
+// import { AccountsService } from './services/accounts.service';
+
+// Routing
+import { routes } from './app.routes';
 
 // Toastr
 import { ToastrModule } from 'ngx-toastr';
-import { QrPaymentComponent } from './qr-payment/qr-payment.component';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    SetPasswordComponent,
-    ChatbotComponent,
-    QrPaymentComponent
+
   ],
   imports: [
-    ReactiveFormsModule?
     BrowserModule,
     HttpClientModule,
     RouterModule.forRoot(routes),
@@ -53,11 +53,16 @@ import { QrPaymentComponent } from './qr-payment/qr-payment.component';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatTableModule,
-    MatSelectModule
+    MatSelectModule,
+    AppComponent,
+    SetPasswordComponent,
+    ChatbotComponent,
+    ClientDashboardComponent
   ],
   providers: [
     AuthService,
-    AccountsService,
+    RechargeService,
+    CryptoService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

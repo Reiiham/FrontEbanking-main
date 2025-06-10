@@ -29,7 +29,7 @@ export class OperationComponent {
         this.error = '';
         this.router.navigate(['/employee/clients']);
       },
-      error: err => {
+      error: (err: { error: string; }) => {
         this.error = err.error || 'Erreur lors du dépôt';
         this.message = '';
       }
@@ -61,4 +61,3 @@ export class OperationComponent {
     }
   }
 }
-

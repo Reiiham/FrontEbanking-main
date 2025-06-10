@@ -1,11 +1,10 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject } from 'rxjs';
+import {Observable, throwError, BehaviorSubject, of} from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { LoginResponse } from '../model/login-response.model'; // Adjust the import path as necessary
-import {jwtDecode} from 'jwt-decode';
 
 // Interfaces pour les nouvelles fonctionnalités
 export interface SetPasswordRequest {
@@ -40,8 +39,18 @@ export class AuthService {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     if (isPlatformBrowser(this.platformId)) {
-      this.isAuthenticatedSubject.next(!!localStorage.getItem('token'));
-      this.clientIdSubject.next(localStorage.getItem('clientId'));
+      const token = localStorage.getItem('token');
+      const isValid = token && !this.isTokenExpired(token);
+
+      if (typeof isValid === "boolean") {
+        this.isAuthenticatedSubject.next(isValid);
+      }
+      if (isValid) {
+        this.clientIdSubject.next(localStorage.getItem('clientId'));
+      } else if (token) {
+        // Token expiré, nettoyer le localStorage
+        this.clearTokens();
+      }
     }
   }
 
@@ -55,14 +64,7 @@ export class AuthService {
       tap(response => {
         // Si pas de 2FA requis, stocker le token directement
         if (response.token && !response.requires2FA) {
-          if (isPlatformBrowser(this.platformId)) {
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('role', response.role);
-            localStorage.setItem('clientId', response.clientId);
-            this.isAuthenticatedSubject.next(true);
-            this.clientIdSubject.next(response.clientId);
-            console.log('Token sauvegardé', response.token);
-          }
+          this.storeTokens(response);
         }
       }),
       catchError(err => {
@@ -80,13 +82,7 @@ export class AuthService {
       { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
     ).pipe(
       tap(response => {
-        if (isPlatformBrowser(this.platformId)) {
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('role', response.role);
-          localStorage.setItem('clientId', response.clientId);
-          this.isAuthenticatedSubject.next(true);
-          this.clientIdSubject.next(response.clientId);
-        }
+        this.storeTokens(response);
       }),
       catchError(err => {
         const errorMessage = err.error?.message || err.error || 'Code PIN invalide';
@@ -108,6 +104,88 @@ export class AuthService {
       })
     );
   }
+
+  /**
+   * Stockage centralisé des tokens
+   */
+  private storeTokens(response: any): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('role', response.role);
+      localStorage.setItem('clientId', response.clientId);
+
+      // Ajouter un timestamp pour le debugging
+      localStorage.setItem('tokenTimestamp', Date.now().toString());
+
+      this.isAuthenticatedSubject.next(true);
+      this.clientIdSubject.next(response.clientId);
+
+      console.log('✅ Tokens stored successfully');
+      console.log('   Token length:', response.token?.length);
+      console.log('   Role:', response.role);
+      console.log('   ClientId:', response.clientId);
+    }
+  }
+
+  /**
+   * Nettoyage centralisé des tokens
+   */
+  private clearTokens(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('clientId');
+      localStorage.removeItem('tokenTimestamp');
+
+      this.isAuthenticatedSubject.next(false);
+      this.clientIdSubject.next(null);
+
+      console.log('🧹 Tokens cleared');
+    }
+  }
+
+  /**
+   * Vérification si le token JWT est expiré
+   */
+  private isTokenExpired(token: string): boolean {
+    try {
+      // Vérifier si c'est un JWT
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        console.log('⚠️ Token is not a JWT format');
+        return false; // Pas un JWT, on ne peut pas vérifier l'expiration
+      }
+
+      const payload = JSON.parse(atob(parts[1]));
+
+      if (!payload.exp) {
+        console.log('⚠️ Token has no expiration date');
+        return false; // Pas d'expiration définie
+      }
+
+      const currentTime = Math.floor(Date.now() / 1000);
+      const isExpired = payload.exp < currentTime;
+
+      if (isExpired) {
+        console.log('🚨 Token is expired');
+        console.log('   Expired at:', new Date(payload.exp * 1000));
+        console.log('   Current time:', new Date(currentTime * 1000));
+      } else {
+        const timeToExpiry = payload.exp - currentTime;
+        console.log(`⏱️ Token expires in ${Math.floor(timeToExpiry / 60)} minutes`);
+      }
+
+      return isExpired;
+    } catch (error) {
+      console.error('❌ Error parsing token:', error);
+      return true; // Considérer comme expiré si on ne peut pas le parser
+    }
+  }
+
+  /**
+   * Validation du token auprès du serveur
+   */
+
 
   /**
    * Valide un token de réinitialisation de mot de passe
@@ -134,10 +212,11 @@ export class AuthService {
 
   // Obtenir le profil client
   getClientProfile(): Observable<{ clientId: string }> {
-    const token = isPlatformBrowser(this.platformId) ? localStorage.getItem('token') : null;
+    const token = this.getToken();
     if (!token) {
       return throwError(() => new Error('No token found'));
     }
+
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -158,17 +237,17 @@ export class AuthService {
 
   // Obtenir le rôle utilisateur
   getRole(): Observable<string> {
-    const token = isPlatformBrowser(this.platformId) ? localStorage.getItem('token') : null;
-    const storedRole = isPlatformBrowser(this.platformId) ? localStorage.getItem('role') : null;
+    const token = this.getToken();
+    const storedRole = this.getStoredRole();
+
     if (!token) {
       return throwError(() => new Error('No token found'));
     }
+
     if (storedRole) {
-      return new Observable(observer => {
-        observer.next(storedRole);
-        observer.complete();
-      });
+      return of(storedRole);
     }
+
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -187,50 +266,30 @@ export class AuthService {
     );
   }
 
-  // Vérifier si l'utilisateur est connecté
-//   isLoggedIn(): boolean {
-//
-//     if (isPlatformBrowser(this.platformId)) {
-//     const token = localStorage.getItem('token');
-//     return !!token; // retourne true si token existe, false sinon
-//   }
-//   return false;
-// }
-
+  /**
+   * Vérification améliorée de l'état de connexion
+   */
   isLoggedIn(): boolean {
-    if (isPlatformBrowser(this.platformId)) {
-      const token = localStorage.getItem('token');
-      console.log('🔍 isLoggedIn check - Token exists:', !!token);
-
-      if (!token) {
-        console.log('❌ No token found');
-        return false;
-      }
-
-      try {
-        const decoded: any = jwtDecode(token);
-        const exp = decoded.exp * 1000; // JWT exp est en secondes
-        const now = Date.now();
-
-        console.log('🔍 Token decoded successfully');
-        console.log('🕐 Token expires at:', new Date(exp));
-        console.log('🕐 Current time:', new Date(now));
-        console.log('🔍 Token valid:', now < exp);
-
-        return now < exp;
-      } catch (e) {
-        console.error('❌ Invalid token:', e);
-        console.log('🔍 Token content (first 50 chars):', token.substring(0, 50));
-        return false;
-      }
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
     }
-    console.log('❌ Not in browser platform');
-    return false;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.log('🚨 No token found in localStorage');
+      return false;
+    }
+
+    // Vérification de l'expiration pour les JWT
+    if (this.isTokenExpired(token)) {
+      console.log('🚨 Token is expired, cleaning up');
+      this.clearTokens();
+      return false;
+    }
+
+    console.log('✅ User is logged in with valid token');
+    return true;
   }
-
-
-
-
 
   // Observable pour l'état d'authentification
   get isAuthenticated$(): Observable<boolean> {
@@ -244,13 +303,8 @@ export class AuthService {
 
   // Déconnexion
   logout(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('role');
-      localStorage.removeItem('clientId');
-      this.isAuthenticatedSubject.next(false);
-      this.clientIdSubject.next(null);
-    }
+    console.log('🚪 Logging out user');
+    this.clearTokens();
   }
 
   // Obtenir le clientId
@@ -266,5 +320,32 @@ export class AuthService {
   // Obtenir le rôle stocké
   getStoredRole(): string | null {
     return isPlatformBrowser(this.platformId) ? localStorage.getItem('role') : null;
+  }
+
+  /**
+   * Debug: Afficher les informations de session
+   */
+  debugSessionInfo(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      console.log('🚨 Not in browser environment');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    const clientId = localStorage.getItem('clientId');
+    const timestamp = localStorage.getItem('tokenTimestamp');
+
+    console.log('🔍 Session Debug Info:');
+    console.log('   Token exists:', !!token);
+    console.log('   Token length:', token?.length || 0);
+    console.log('   Role:', role);
+    console.log('   ClientId:', clientId);
+    console.log('   Token stored at:', timestamp ? new Date(parseInt(timestamp)) : 'Unknown');
+    console.log('   Is logged in:', this.isLoggedIn());
+
+    if (token) {
+      console.log('   Token expired:', this.isTokenExpired(token));
+    }
   }
 }

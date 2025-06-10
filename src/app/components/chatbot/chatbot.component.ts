@@ -1,9 +1,9 @@
+
 import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AIAssistantService, AIResponse } from '../../services/ai-assistant.service';
-import { FormsModule } from '@angular/forms';
-import {CommonModule} from '@angular/common';
-
 
 interface Message {
   id: number;
@@ -34,7 +34,6 @@ interface Transaction {
   styleUrls: ['./chatbot.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule],
-
 })
 export class ChatbotComponent implements OnInit, AfterViewChecked {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
@@ -46,10 +45,11 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   isTyping = false;
   private messageId = 1;
   private effectiveClientId: string = ''; // Internal working clientId
+  isAssistantAvailable = true; // Track if assistant service is available
 
   constructor(
-      private http: HttpClient,
-      private aiAssistantService: AIAssistantService
+    private http: HttpClient,
+    private aiAssistantService: AIAssistantService
   ) {}
 
   ngOnInit() {
@@ -59,11 +59,33 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
     if (!this.clientId) {
       console.warn('ChatbotComponent: No clientId provided, using fallback');
     }
+
     this.initializeChat();
+    this.checkAssistantHealth();
   }
 
   ngAfterViewChecked() {
     this.scrollToBottom();
+  }
+
+  /**
+   * Check if the assistant service is healthy
+   */
+  checkAssistantHealth() {
+    this.aiAssistantService.checkAssistantHealth().subscribe({
+      next: (response) => {
+        this.isAssistantAvailable = response.modelAvailable;
+        console.log('🏥 Assistant health status:', response);
+
+        if (!this.isAssistantAvailable) {
+          console.warn('⚠️ AI Assistant model is not available');
+        }
+      },
+      error: (error) => {
+        console.error('❌ Failed to check assistant health:', error);
+        this.isAssistantAvailable = false;
+      }
+    });
   }
 
   toggleChat() {
@@ -74,9 +96,13 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   }
 
   initializeChat() {
+    const welcomeMessage = this.isAssistantAvailable
+      ? "👋 Bonjour ! Je suis votre assistant bancaire IA. Comment puis-je vous aider aujourd'hui ?"
+      : "👋 Bonjour ! Je suis votre assistant bancaire. Comment puis-je vous aider aujourd'hui ?";
+
     this.messages = [{
       id: this.messageId++,
-      text: "👋 Bonjour ! Je suis votre assistant bancaire. Comment puis-je vous aider aujourd'hui ?",
+      text: welcomeMessage,
       isUser: false,
       timestamp: new Date()
     }];
@@ -84,7 +110,18 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
 
   addWelcomeMessage() {
     setTimeout(() => {
-      this.addBotMessage("Vous pouvez me demander :\n• Consulter votre solde\n• Voir vos dernières transactions\n• Faire un virement\n• Gérer vos bénéficiaires\n\nQue souhaitez-vous faire ?");
+      const helpMessage = `Vous pouvez me demander :
+• 💰 Consulter votre solde
+• 📊 Voir vos dernières transactions
+• 💸 Faire un virement
+• 👥 Gérer vos bénéficiaires
+• ❓ Obtenir de l'aide
+
+${this.isAssistantAvailable ? 'Vous pouvez aussi me parler naturellement !' : ''}
+
+Que souhaitez-vous faire ?`;
+
+      this.addBotMessage(helpMessage);
     }, 500);
   }
 
@@ -95,7 +132,12 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
     const userMessage = this.currentMessage;
     this.currentMessage = '';
 
-    this.processUserMessageWithAI(userMessage);
+    // Use AI assistant if available, otherwise use simple pattern matching
+    if (this.isAssistantAvailable) {
+      this.processUserMessageWithAI(userMessage);
+    } else {
+      this.processUserMessageWithPatterns(userMessage);
+    }
   }
 
   addUserMessage(text: string) {
@@ -131,8 +173,9 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
     this.isTyping = false;
     this.messages = this.messages.filter(msg => !msg.isTyping);
   }
+
   formatMessage(message: string): string {
-    // Exemple de formatage : échappe les balises HTML pour éviter les injections
+    // Escape HTML tags to prevent injection
     const div = document.createElement('div');
     div.textContent = message;
     return div.innerHTML;
@@ -144,15 +187,12 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   processUserMessageWithAI(message: string) {
     console.log('🤖 processUserMessageWithAI called with message:', message);
     console.log('🆔 Using effectiveClientId:', this.effectiveClientId);
-    console.log('🔧 AIAssistantService instance:', this.aiAssistantService);
 
     this.showTyping();
 
     this.aiAssistantService.processMessage(this.effectiveClientId, message, 'fr').subscribe({
       next: (response: AIResponse) => {
         console.log('✅ AI Response received in component:', response);
-        console.log('📊 Response type:', typeof response);
-        console.log('🔍 Response properties:', Object.keys(response));
 
         this.hideTyping();
 
@@ -164,45 +204,77 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
           // Handle different intents based on AI response
           this.handleAIResponse(response, message);
         } else {
-          console.log('⚠️ AI response indicates failure or is invalid');
-          console.log('❌ Response success:', response?.success);
-          console.log('❌ Response object:', response);
+          console.log('⚠️ AI response indicates failure');
 
-          const errorMessage = response?.responseText || 'Réponse invalide du serveur';
-          this.addBotMessage("❌ " + errorMessage);
+          // Check if it's a service availability issue
+          if (response?.responseText?.includes('Service ASSISTANT non activé')) {
+            this.isAssistantAvailable = false;
+            this.addBotMessage("⚠️ Le service d'assistant IA n'est pas activé pour votre compte. Je peux quand même vous aider avec les fonctions de base !");
+            // Fallback to pattern matching
+            this.processUserMessageWithPatterns(message);
+          } else {
+            const errorMessage = response?.responseText || 'Réponse invalide du serveur';
+            this.addBotMessage("❌ " + errorMessage);
+          }
         }
       },
       error: (error) => {
-        console.error('❌ Error in processUserMessageWithAI subscription:', error);
-        console.error('❌ Error type:', typeof error);
-        console.error('❌ Error constructor:', error.constructor?.name);
-        console.error('❌ Error status:', error.status);
-        console.error('❌ Error statusText:', error.statusText);
-        console.error('❌ Error url:', error.url);
-        console.error('❌ Error message:', error.message);
-
-        if (error.error) {
-          console.error('❌ Nested error object:', error.error);
-          console.error('❌ Nested error type:', typeof error.error);
-        }
-
+        console.error('❌ Error in processUserMessageWithAI:', error);
         this.hideTyping();
 
-        // More specific error message based on error type
-        let errorMessage = "❌ Désolé, je rencontre des difficultés techniques. Veuillez réessayer.";
-
-        if (error.status === 0) {
-          errorMessage = "❌ Impossible de contacter le serveur. Vérifiez votre connexion.";
+        // Handle specific error cases
+        if (error.status === 403) {
+          this.isAssistantAvailable = false;
+          this.addBotMessage("⚠️ Service d'assistant IA non disponible. Je vais vous aider avec les fonctions de base.");
+          this.processUserMessageWithPatterns(message);
+        } else if (error.status === 0) {
+          this.addBotMessage("❌ Impossible de contacter le serveur. Vérifiez votre connexion.");
         } else if (error.status >= 400 && error.status < 500) {
-          errorMessage = `❌ Erreur client (${error.status}): ${error.message}`;
+          this.addBotMessage(`❌ Erreur client (${error.status}). Veuillez réessayer.`);
         } else if (error.status >= 500) {
-          errorMessage = `❌ Erreur serveur (${error.status}): ${error.message}`;
+          this.addBotMessage(`❌ Erreur serveur (${error.status}). Le service est temporairement indisponible.`);
+        } else {
+          this.addBotMessage("❌ Désolé, je rencontre des difficultés techniques. Veuillez réessayer.");
         }
-
-        this.addBotMessage(errorMessage);
       }
     });
   }
+
+  /**
+   * Fallback method using simple pattern matching when AI is not available
+   */
+  processUserMessageWithPatterns(message: string) {
+    console.log('🔍 Using pattern matching for message:', message);
+
+    const lowerMessage = message.toLowerCase();
+
+    this.showTyping();
+
+    // Simulate thinking time
+    setTimeout(() => {
+      this.hideTyping();
+
+      if (lowerMessage.includes('solde') || lowerMessage.includes('balance')) {
+        this.addBotMessage("💰 Je vais récupérer vos soldes de compte...");
+        this.getAccountBalance();
+      } else if (lowerMessage.includes('transaction') || lowerMessage.includes('historique')) {
+        this.addBotMessage("📊 Voici vos dernières transactions...");
+        this.getTransactions();
+      } else if (lowerMessage.includes('virement') || lowerMessage.includes('transfer')) {
+        this.addBotMessage("💸 Pour les virements, je vais vous expliquer la procédure...");
+        this.handleTransferRequest(message);
+      } else if (lowerMessage.includes('bénéficiaire') || lowerMessage.includes('beneficiary')) {
+        this.addBotMessage("👥 Voici vos bénéficiaires enregistrés...");
+        this.getBeneficiaries();
+      } else if (lowerMessage.includes('aide') || lowerMessage.includes('help') || lowerMessage.includes('menu')) {
+        this.showHelp();
+      } else {
+        this.addBotMessage(`Je comprends que vous souhaitez "${message}". Voici ce que je peux faire pour vous aider :`);
+        this.showHelp();
+      }
+    }, 800);
+  }
+
   /**
    * Handle AI response and perform actions based on detected intent
    */
@@ -212,6 +284,8 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
 
     // Perform specific actions based on detected intent
     if (response.intent) {
+      console.log('🎯 Handling intent:', response.intent);
+
       switch (response.intent.toLowerCase()) {
         case 'check_balance':
         case 'account_balance':
@@ -239,7 +313,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
           break;
 
         default:
-          // AI has already provided a response, no additional action needed
+          console.log('🤷 Unknown intent, AI response only');
           break;
       }
     }
@@ -255,7 +329,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
           });
           this.addBotMessage(response);
         } else {
-          this.addBotMessage("❌ Aucun compte trouvé.");
+          this.addBotMessage("ℹ️ Aucun compte trouvé.");
         }
       },
       error: (error) => {
@@ -268,11 +342,11 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   getTransactions() {
     this.aiAssistantService.getTransactions(this.effectiveClientId, 0, 5).subscribe({
       next: (response) => {
-        if (response.success && response.data.transactions.length > 0) {
+        if (response.success && response.data && response.data.transactions && response.data.transactions.length > 0) {
           let message = "📊 **Vos dernières transactions :**\n\n";
           response.data.transactions.forEach((transaction: Transaction) => {
             const amount = transaction.amount > 0 ? `+${transaction.amount}€` : `${transaction.amount}€`;
-            const date = new Date(transaction.operationDate).toLocaleDateString();
+            const date = new Date(transaction.operationDate).toLocaleDateString('fr-FR');
             message += `• ${date}: ${transaction.description} - **${amount}**\n`;
           });
           this.addBotMessage(message);
@@ -292,9 +366,23 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
     const amountMatch = message.match(/(\d+)/);
     if (amountMatch) {
       const amount = amountMatch[1];
-      this.addBotMessage(`💸 Vous souhaitez faire un virement de ${amount}€.\n\nPour des raisons de sécurité, les virements doivent être effectués depuis la section "Virements" de votre tableau de bord.\n\n🔐 **Étapes :**\n1. Allez dans "Mes Virements"\n2. Sélectionnez le bénéficiaire\n3. Saisissez le montant\n4. Confirmez avec votre code\n\nSouhaitez-vous que je vous montre vos bénéficiaires ?`);
+      this.addBotMessage(`💸 Vous souhaitez faire un virement de ${amount}€.
+
+🔐 **Pour des raisons de sécurité, les virements doivent être effectués depuis votre tableau de bord :**
+
+**Étapes :**
+1. Allez dans "Mes Virements"
+2. Sélectionnez le bénéficiaire
+3. Saisissez le montant
+4. Confirmez avec votre code
+
+Souhaitez-vous que je vous montre vos bénéficiaires ?`);
     } else {
-      this.addBotMessage("💸 Pour effectuer un virement, rendez-vous dans la section \"Virements\" de votre tableau de bord.\n\nVoulez-vous voir la liste de vos bénéficiaires ?");
+      this.addBotMessage(`💸 **Pour effectuer un virement :**
+
+Rendez-vous dans la section "Virements" de votre tableau de bord.
+
+Voulez-vous voir la liste de vos bénéficiaires ?`);
     }
   }
 
@@ -304,12 +392,16 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
         if (beneficiaries && beneficiaries.length > 0) {
           let message = "👥 **Vos bénéficiaires :**\n\n";
           beneficiaries.forEach((beneficiary: any) => {
-            message += `• ${beneficiary.name} - ${beneficiary.bankName}\n`;
+            message += `• ${beneficiary.name} - ${beneficiary.bankName || beneficiary.bank || 'Banque non spécifiée'}\n`;
           });
-          message += "\nPour ajouter un bénéficiaire, allez dans la section 'Bénéficiaires' de votre tableau de bord.";
+          message += "\n💡 Pour ajouter un bénéficiaire, allez dans la section 'Bénéficiaires' de votre tableau de bord.";
           this.addBotMessage(message);
         } else {
-          this.addBotMessage("👥 Vous n'avez pas encore de bénéficiaires enregistrés.\n\nPour en ajouter un, allez dans la section 'Bénéficiaires' de votre tableau de bord.");
+          this.addBotMessage(`👥 **Aucun bénéficiaire enregistré**
+
+Vous n'avez pas encore de bénéficiaires enregistrés.
+
+💡 Pour en ajouter un, allez dans la section 'Bénéficiaires' de votre tableau de bord.`);
         }
       },
       error: (error) => {
@@ -322,7 +414,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   showHelp() {
     this.addBotMessage(`🤖 **Je peux vous aider avec :**
 
-💰 **Comptes**
+💰 **Comptes & Soldes**
 • "Quel est mon solde ?"
 • "Montre-moi mes comptes"
 
@@ -334,9 +426,11 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
 • "Faire un virement"
 • "Mes bénéficiaires"
 
-❓ **Autres**
+❓ **Aide**
 • "Aide" pour ce menu
-• Tapez votre question naturellement
+• "Menu" pour les options
+
+${this.isAssistantAvailable ? '🤖 **Vous pouvez aussi me parler naturellement !** Posez vos questions comme vous le feriez à un conseiller.' : ''}
 
 Comment puis-je vous aider ?`);
   }
@@ -359,6 +453,22 @@ Comment puis-je vous aider ?`);
     return new Date(timestamp).toLocaleTimeString('fr-FR', {
       hour: '2-digit',
       minute: '2-digit'
+    });
+  }
+
+  // Debug method to test connection
+  testConnection() {
+    console.log('🧪 Testing assistant connection...');
+    this.aiAssistantService.testConnection(this.effectiveClientId, "test de connexion").subscribe({
+      next: (response) => {
+        console.log('✅ Connection test successful:', response);
+        this.addBotMessage("✅ Test de connexion réussi ! L'assistant IA est opérationnel.");
+      },
+      error: (error) => {
+        console.error('❌ Connection test failed:', error);
+        this.addBotMessage("⚠️ Test de connexion échoué. Fonctionnement en mode basique.");
+        this.isAssistantAvailable = false;
+      }
     });
   }
 }

@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { QrPaymentService } from '../services/qr-payment.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-qr-payment',
-  imports: [],
+  imports: [ReactiveFormsModule],
   templateUrl: './qr-payment.component.html',
   styleUrl: './qr-payment.component.css'
 })

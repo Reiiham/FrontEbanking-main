@@ -4,7 +4,7 @@ import {Observable, throwError} from 'rxjs';
 import { ActivateServicesRequest } from '../banque/models/activate-services-request.model';
 import { SuspendServicesRequest } from '../banque/models/suspend-services-request.model';
 import { environment } from '../environments/environment';
-import {catchError, map, tap} from 'rxjs/operators';
+import {catchError, tap} from 'rxjs/operators';
 
 
 @Injectable({ providedIn: 'root' })
@@ -13,9 +13,9 @@ export class ServiceManagerService {
 
   constructor(private http: HttpClient) {}
 
-  // Helper method to get auth headers
+  // Helper method to get auth headers - FIXED to use same key as AuthService
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('jwt');
+    const token = localStorage.getItem('token'); // Only check 'token' key
     console.log('🔑 ServiceManager Token found:', token ? 'YES' : 'NO');
 
     let headers = new HttpHeaders({
@@ -33,22 +33,15 @@ export class ServiceManagerService {
   private handleError = (operation = 'operation') => {
     return (error: HttpErrorResponse): Observable<never> => {
       console.error(`❌ ServiceManager ${operation} failed:`, error);
+
+      if (error.status === 401) {
+        console.error('🚨 UNAUTHORIZED - Token might be invalid');
+        localStorage.removeItem('token');
+      }
+
       return throwError(() => error);
     };
   };
-
-  // activateServices(data: ActivateServicesRequest): Observable<any> {
-  //   console.log('🔧 Calling activateServices() with data:', data);
-  //   const url = `${this.baseUrl}/clients/activer-services`;
-  //   console.log('🌐 URL:', url);
-  //
-  //   return this.http.post(url, data, {
-  //     headers: this.getAuthHeaders()
-  //   }).pipe(
-  //     tap(result => console.log('✅ Activate services result:', result)),
-  //     catchError(this.handleError('activateServices'))
-  //   );
-  // }
 
   activateServices(data: ActivateServicesRequest): Observable<any> {
     console.log('🔧 Calling activateServices() with data:', data);
@@ -56,14 +49,9 @@ export class ServiceManagerService {
     console.log('🌐 URL:', url);
 
     return this.http.post(url, data, {
-      headers: this.getAuthHeaders(),
-      responseType: 'text' as 'json' // ✅ This fixes the JSON parsing error
+      headers: this.getAuthHeaders()
     }).pipe(
       tap(result => console.log('✅ Activate services result:', result)),
-      map(response => {
-        // Convert text response to object for consistency
-        return { message: response, status: 'success' };
-      }),
       catchError(this.handleError('activateServices'))
     );
   }
@@ -94,4 +82,3 @@ export class ServiceManagerService {
     );
   }
 }
-

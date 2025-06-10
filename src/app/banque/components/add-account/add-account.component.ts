@@ -30,7 +30,19 @@ export class AddAccountComponent implements OnInit {
     });
   }
 
-  submit(): void {
+  // submit(): void {
+  //   if (this.accountForm.invalid) return;
+  //
+  //   const payload = {
+  //     clientId: this.clientId,
+  //     ...this.accountForm.value
+  //   };
+
+  submit(event?: Event): void {
+    if (event) {
+      event.preventDefault(); // Empêche la soumission native du formulaire
+    }
+
     if (this.accountForm.invalid) return;
 
     const payload = {

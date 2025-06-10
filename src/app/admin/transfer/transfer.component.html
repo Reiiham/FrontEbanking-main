@@ -1,0 +1,112 @@
+<div class="transfer-container">
+  <div class="card">
+    <div class="card-header">
+      <h2><i class="fas fa-exchange-alt"></i> Virement entre Comptes</h2>
+    </div>
+
+    <div *ngIf="showAlert" class="alert" [ngClass]="{'alert-success': alertType === 'success', 'alert-error': alertType === 'error'}">
+      <span>{{ alertMessage }}</span>
+      <button type="button" class="alert-close" (click)="closeAlert()">×</button>
+    </div>
+
+    <form [formGroup]="transferForm" (ngSubmit)="onSubmit()" class="transfer-form">
+
+      <!-- Compte Source -->
+      <div class="form-section">
+        <h3><i class="fas fa-arrow-up"></i> Compte Source</h3>
+        <div class="form-group">
+          <label for="fromRib">RIB source *</label>
+          <div class="input-container">
+            <input id="fromRib" type="text" formControlName="fromRib" maxlength="24"
+                   placeholder="Entrez le RIB" [class.error]="isFieldInvalid('fromRib')"
+                   (focus)="showFromDropdown = true" (blur)="hideDropdownWithDelay('from')">
+            <div *ngIf="showFromDropdown && filteredFromAccounts.length" class="dropdown">
+              <div *ngFor="let acc of filteredFromAccounts" class="dropdown-item" (click)="selectAccount(acc,'from')">
+                <strong>{{ acc.rib }}</strong>
+                <span>{{ acc.ownerName }}</span>
+                <span>{{ acc.balance | currency:'MAD':'symbol':'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="isFieldInvalid('fromRib')" class="error-message">{{ getFieldError('fromRib') }}</div>
+        </div>
+        <div *ngIf="fromAccountInfo" class="account-display">
+          <div class="account-card from-account">
+            <h4>{{ fromAccountInfo.ownerName }}</h4>
+            <p><strong>N°:</strong> {{ fromAccountInfo.accountNumber }}</p>
+            <p><strong>Type:</strong> {{ fromAccountInfo.type }}</p>
+            <p><strong>Solde:</strong> {{ fromAccountInfo.balance | currency:'MAD':'1.2-2' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compte Destinataire -->
+      <div class="form-section">
+        <h3><i class="fas fa-arrow-down"></i> Compte Destinataire</h3>
+        <div class="form-group">
+          <label for="toRib">RIB destinataire *</label>
+          <div class="input-container">
+            <input id="toRib" type="text" formControlName="toRib" maxlength="24"
+                   placeholder="Entrez le RIB" [class.error]="isFieldInvalid('toRib')"
+                   (focus)="showToDropdown = true" (blur)="hideDropdownWithDelay('to')">
+            <div *ngIf="showToDropdown && filteredToAccounts.length" class="dropdown">
+              <div *ngFor="let acc of filteredToAccounts" class="dropdown-item" (click)="selectAccount(acc,'to')">
+                <strong>{{ acc.rib }}</strong>
+                <span>{{ acc.ownerName }}</span>
+                <span>{{ acc.balance | currency:'MAD':'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="isFieldInvalid('toRib')" class="error-message">{{ getFieldError('toRib') }}</div>
+        </div>
+        <div *ngIf="toAccountInfo" class="account-display">
+          <div class="account-card to-account">
+            <h4>{{ toAccountInfo.ownerName }}</h4>
+            <p><strong>N°:</strong> {{ toAccountInfo.accountNumber }}</p>
+            <p><strong>Type:</strong> {{ toAccountInfo.type }}</p>
+            <p><strong>Solde:</strong> {{ toAccountInfo.balance | currency:'MAD':'1.2-2' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Montant -->
+      <div class="form-section">
+        <h3><i class="fas fa-euro-sign"></i> Montant</h3>
+        <div class="form-group">
+          <label for="amount">Montant à transférer *</label>
+          <div class="amount-input">
+            <input id="amount" type="number" formControlName="amount" step="0.01" min="0.01"
+                   [class.error]="isFieldInvalid('amount')" placeholder="0.00">
+            <span class="currency">€</span>
+          </div>
+          <div *ngIf="isFieldInvalid('amount')" class="error-message">{{ getFieldError('amount') }}</div>
+        </div>
+      </div>
+
+      <!-- Résumé -->
+      <div *ngIf="fromAccountInfo && toAccountInfo && transferForm.get('amount')?.value" class="transfer-summary">
+        <h3><i class="fas fa-receipt"></i> Résumé du Virement</h3>
+        <p><span>De:</span> {{ fromAccountInfo.ownerName }} ({{ fromAccountInfo.rib }})</p>
+        <p><span>Vers:</span> {{ toAccountInfo.ownerName }} ({{ toAccountInfo.rib }})</p>
+        <p><span>Montant:</span> {{ transferForm.get('amount')?.value | currency:'MAD':'1.2-2' }}</p>
+        <p *ngIf="fromAccountInfo.balance >= transferForm.get('amount')?.value">
+          <span>Nouveau solde:</span> {{ (fromAccountInfo.balance - transferForm.get('amount')?.value) | currency:'MAD':'1.2-2' }}
+        </p>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="transferForm.invalid || isLoading">
+          <i *ngIf="isLoading" class="fas fa-spinner fa-spin"></i>
+          <i *ngIf="!isLoading" class="fas fa-paper-plane"></i>
+          {{ isLoading ? 'Traitement...' : 'Effectuer le Virement' }}
+        </button>
+        <button type="button" class="btn btn-secondary"
+                (click)="transferForm.reset(); fromAccountInfo = null; toAccountInfo = null"
+                [disabled]="isLoading">
+          <i class="fas fa-undo"></i> Réinitialiser
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

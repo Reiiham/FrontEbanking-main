@@ -1,73 +1,491 @@
-<div class="dashboard-container">
-  <!-- Header -->
-  <header class="dashboard-header">
-    <h1>Welcome to Your Banking Dashboard</h1>
-    <nav class="dashboard-nav">
-      <a [routerLink]="['/client', clientId, 'accounts']" class="nav-btn">View All Accounts</a>
-      <a [routerLink]="['/client', clientId, 'transfer']" class="nav-btn">Make a Transfer</a>
-      <a [routerLink]="['/client', clientId, 'beneficiaries']" class="nav-btn">Manage Beneficiaries</a>
-      <a (click)="logout()" class="nav-btn">Logout</a>
-    </nav>
-  </header>
+<div class="container mt-4">
+  <h2>Dashboard Client</h2>
 
-  <!-- Balance Card -->
-  <div class="balance-card" *ngIf="!loadingAccounts && !errorAccounts">
-    <h2>Total Balance</h2>
-    <div class="balance-amount">{{ totalBalance | currency:'USD' }}</div>
+  <!-- Navigation Tabs -->
+  <ul class="nav nav-tabs mb-4 custom-nav-tabs">
+    <li class="nav-item left">
+      <a class="nav-link" [class.active]="activeTab === 'virement'" (click)="activeTab = 'virement'">Virements</a>
+    </li>
+    <li class="nav-item center">
+      <a class="nav-link" [class.active]="activeTab === 'beneficiaires'" (click)="activeTab = 'beneficiaires'">Bénéficiaires</a>
+    </li>
+    <li class="nav-item right">
+      <a class="nav-link" [class.active]="activeTab === 'historique'" (click)="activeTab = 'historique'; loadTransferHistory()">Historique</a>
+    </li>
+    <li class="nav-item right">
+      <a class="nav-link" [class.active]="activeTab === 'Crypto'" (click)="activeTab = 'crypto';loadTransferHistory() ">Crypto</a>
+    </li>
+    <li class="nav-item right">
+      <a class="nav-link" [class.active]="activeTab === 'Recharge'" (click)="activeTab = 'recharge'; loadTransferHistory()">recharge</a>
+    </li>
+  </ul>
+  <!-- Messages d'alerte -->
+  <div *ngIf="message" class="alert mt-3"
+       [class]="messageType === 'success' ? 'alert-success' : 'alert-danger'">
+    {{message}}
   </div>
-  <div class="loading-spinner" *ngIf="loadingAccounts">Loading accounts...</div>
-  <div class="error-message" *ngIf="errorAccounts">{{ errorAccounts }}</div>
 
-  <!-- Accounts Section -->
-  <div class="accounts-section" *ngIf="!loadingAccounts && !errorAccounts">
-    <h2>Your Accounts</h2>
-    <div class="accounts-grid">
-      <div class="account-card" *ngFor="let account of accounts">
-        <h3>Account {{ account.id }}</h3>
-        <p>Type: {{ account.type }}</p>
-        <p>Status: {{ account.status }}</p>
-        <p>Balance: {{ account.balance | currency:'USD' }}</p>
-        <p>Created: {{ account.dateCreatedAt | date:'medium' }}</p>
-        <div class="account-actions">
-          <a [routerLink]="['/client', clientId, 'accounts', account.id]" class="action-btn">View Details</a>
-          <a [routerLink]="['/client', clientId, 'accounts', account.id, 'transactions']" class="action-btn">View Transactions</a>
+
+  <!-- Onglet Virements -->
+  <div *ngIf="activeTab === 'virement'" class="tab-content">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h5>Nouveau Virement</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <button class="btn btn-secondary mb-3" (click)="loadClientAccounts()">
+                Charger mes comptes
+              </button>
+            </div>
+
+            <form (ngSubmit)="executeTransfer()" #transferForm="ngForm">
+              <div class="mb-3">
+                <label class="form-label">Compte source</label>
+                <select class="form-select" [(ngModel)]="transferRequest.fromAccountId"
+                        name="fromAccount" required (change)="onFormChange()">
+                  <option value="">Sélectionner un compte</option>
+                  <option *ngFor="let account of clientAccounts" [value]="account.id">
+                    {{account.rib}} - {{account.balance | currency:'EUR'}} ({{account.type}})
+                  </option>
+                </select>
+              </div>
+
+              <!-- Nouvelle section pour choisir entre bénéficiaire ou RIB manuel -->
+              <div class="mb-3">
+                <label class="form-label fw-bold">Destinataire</label>
+
+                <!-- Option 1: Boutons radio avec Bootstrap form-check -->
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="destinationType" id="beneficiary"
+                         [(ngModel)]="destinationType" value="beneficiary" (change)="onFormChange()">
+                  <label class="form-check-label" for="beneficiary">
+                    Bénéficiaire existant
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="destinationType" id="manual"
+                         [(ngModel)]="destinationType" value="manual" (change)="onFormChange()">
+                  <label class="form-check-label" for="manual">
+                    Saisie manuelle du RIB
+                  </label>
+                </div>
+              </div>
+
+              <!-- Sélection de bénéficiaire -->
+              <div *ngIf="destinationType === 'beneficiary'" class="mb-3">
+                <label class="form-label">Choisir un bénéficiaire</label>
+                <div class="input-group">
+                  <select class="form-select" [(ngModel)]="selectedBeneficiaryId"
+                          name="selectedBeneficiary" (change)="onBeneficiarySelect(); onFormChange()">
+                    <option value="">Sélectionner un bénéficiaire</option>
+                    <option *ngFor="let beneficiary of beneficiaries" [value]="beneficiary.id">
+                      {{beneficiary.nom}} - {{beneficiary.rib}}
+                    </option>
+                  </select>
+                  <button type="button" class="btn btn-outline-secondary" (click)="loadBeneficiaries()">
+                    Actualiser
+                  </button>
+                </div>
+              </div>
+
+              <!-- Saisie manuelle du RIB -->
+              <div *ngIf="destinationType === 'manual'" class="mb-3">
+                <label class="form-label">RIB destinataire</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" [(ngModel)]="transferRequest.toRib"
+                         name="toRib" [required]="destinationType === 'manual'" (input)="onFormChange()">
+                  <button type="button" class="btn btn-outline-secondary" (click)="validateRib()">
+                    Valider RIB
+                  </button>
+                </div>
+                <div *ngIf="ribValidation" class="mt-2">
+                  <div *ngIf="ribValidation.valid" class="text-success">
+                    ✓ Compte valide: {{ribValidation.accountHolder}} ({{ribValidation.accountType}})
+                  </div>
+                  <div *ngIf="!ribValidation.valid" class="text-danger">
+                    ✗ RIB invalide
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Montant (€)</label>
+                <input type="number" class="form-control" [(ngModel)]="transferRequest.amount"
+                       name="amount" min="0.01" step="0.01" required (input)="onFormChange()">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Nom du bénéficiaire</label>
+                <input type="text" class="form-control" [(ngModel)]="transferRequest.beneficiaryName"
+                       name="beneficiaryName" required [readonly]="destinationType === 'beneficiary'" (input)="onFormChange()">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" [(ngModel)]="transferRequest.description"
+                          name="description" rows="3"></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary" [disabled]="!isTransferFormValid()">
+                Effectuer le virement
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h5>Mes Comptes</h5>
+          </div>
+          <div class="card-body">
+            <div *ngFor="let account of clientAccounts" class="mb-2 p-2 border rounded">
+              <strong>{{account.rib}}</strong><br>
+              <small>{{account.type}} - {{account.balance | currency:'EUR'}}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Onglet Bénéficiaires -->
+  <div *ngIf="activeTab === 'beneficiaires'" class="tab-content">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>Liste des Bénéficiaires</h5>
+            <div>
+              <button class="btn btn-success me-2" (click)="loadRelationTypes()">
+                Types de relation
+              </button>
+              <button class="btn btn-primary" (click)="showAddBeneficiary = !showAddBeneficiary">
+                Ajouter Bénéficiaire
+              </button>
+            </div>
+          </div>
+          <!-- Formulaire d'ajout/modification -->
+
+          <div class="col-md-4" *ngIf="showAddBeneficiary || editingBeneficiary">
+            <div class="card">
+              <div class="card-header">
+                <h6>{{editingBeneficiary ? 'Modifier' : 'Ajouter'}} Bénéficiaire</h6>
+              </div>
+              <div class="card-body">
+                <form (ngSubmit)="saveBeneficiary()" #beneficiaryForm="ngForm">
+                  <div class="mb-3">
+                    <label class="form-label">Nom</label>
+                    <input type="text" class="form-control" [(ngModel)]="beneficiaryData.nom"
+                           name="nom" required>
+                  </div>
+                  <div class="mb-3" *ngIf="!editingBeneficiary">
+                    <label class="form-label">RIB</label>
+                    <input type="text" class="form-control" [(ngModel)]="beneficiaryData.rib"
+                           name="rib" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Relation</label>
+                    <select class="form-select" [(ngModel)]="beneficiaryData.relation"
+                            name="relation" required>
+                      <option value="">Sélectionner</option>
+                      <option *ngFor="let type of relationTypes | keyvalue" [value]="type.key">
+                        {{type.value}}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary"
+                            [disabled]="!beneficiaryForm.form.valid">
+                      {{editingBeneficiary ? 'Modifier' : 'Ajouter'}}
+                    </button>
+                    <button type="button" class="btn btn-secondary" (click)="cancelBeneficiary()">
+                      Annuler
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Filtres -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <input type="text" class="form-control" placeholder="Rechercher..."
+                       [(ngModel)]="searchQuery" (input)="searchBeneficiaries()">
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" [(ngModel)]="activeFilter" (change)="loadBeneficiaries()">
+                  <option value="">Tous</option>
+                  <option value="true">Actifs</option>
+                  <option value="false">Inactifs</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <button class="btn btn-secondary w-100" (click)="loadBeneficiaries()">
+                  Charger
+                </button>
+              </div>
+            </div>
+
+
+            <!-- Liste des bénéficiaires -->
+            <div *ngFor="let beneficiary of beneficiaries" class="card mb-2">
+              <div class="card-body">
+                <div class="row align-items-center">
+                  <div class="col-md-8">
+                    <h6>{{beneficiary.nom}}</h6>
+                    <small class="text-muted">
+                      RIB: {{beneficiary.rib}} | Relation: {{beneficiary.relation}}
+                    </small>
+                    <span class="badge ms-2"
+                          [class]="beneficiary.actif ? 'bg-success' : 'bg-secondary'">
+                          {{beneficiary.actif ? 'Actif' : 'Inactif'}}
+                        </span>
+                  </div>
+                  <div class="col-md-4 text-end">
+                    <button class="btn btn-sm btn-outline-primary me-1"
+                            (click)="loadBeneficiaryDetails(beneficiary.id)">
+                      Détails
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning me-1"
+                            (click)="editBeneficiary(beneficiary)">
+                      Modifier
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                            (click)="deleteBeneficiary(beneficiary.id)">
+                      Supprimer
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Transactions Section -->
-  <div class="transactions-section" *ngIf="!loadingTransactions && !errorTransactions">
-    <h2>Recent Transactions (Account {{ selectedAccountId }})</h2>
-    <mat-card>
-      <mat-table [dataSource]="recentTransactions">
-        <ng-container matColumnDef="date">
-          <mat-header-cell *matHeaderCellDef>Date</mat-header-cell>
-          <mat-cell *matCellDef="let operation">{{ operation.date | date:'short' }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="type">
-          <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
-          <mat-cell *matCellDef="let operation">{{ operation.type }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="amount">
-          <mat-header-cell *matHeaderCellDef>Amount</mat-header-cell>
-          <mat-cell *matCellDef="let operation" [ngClass]="operation.type === 'DEBIT' ? 'debit' : 'credit'">
-            {{ operation.amount | currency:'USD' }}
-          </mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="description">
-          <mat-header-cell *matHeaderCellDef>Description</mat-header-cell>
-          <mat-cell *matCellDef="let operation">{{ operation.description }}</mat-cell>
-        </ng-container>
-        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-      </mat-table>
-    </mat-card>
+  <!-- Onglet Historique -->
+  <div *ngIf="activeTab === 'historique'" class="tab-content">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5>Historique des Virements</h5>
+        <div>
+          <label class="me-2">Page:</label>
+          <input type="number" class="form-control d-inline-block" style="width: 80px"
+                 [(ngModel)]="historyPage" min="0">
+          <label class="ms-3 me-2">Taille:</label>
+          <select class="form-select d-inline-block" style="width: 80px"
+                  [(ngModel)]="historySize">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+          <button class="btn btn-secondary ms-2" (click)="loadTransferHistory()">
+            Charger
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th>ID Transaction</th>
+              <th>Type</th>
+              <th>Montant</th>
+              <th>Date</th>
+              <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let transaction of transferHistory">
+              <td>{{transaction.id}}</td>
+              <td>
+                      <span class="badge"
+                            [class]="transaction.type === 'VIREMENT_SORTANT' ? 'bg-danger' : 'bg-success'">
+                        {{transaction.type}}
+                      </span>
+              </td>
+              <td [class]="transaction.amount < 0 ? 'text-danger' : 'text-success'">
+                {{transaction.amount | currency:'MAD'}}
+              </td>
+              <td>{{parseCustomDate(transaction.date)}}</td>
+              <td>{{transaction.description || '-'}}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="loading-spinner" *ngIf="loadingTransactions">Loading transactions...</div>
-  <div class="error-message" *ngIf="errorTransactions">{{ errorTransactions }}</div>
+  <!-- Onglet Recharge -->
+  <div *ngIf="activeTab === 'recharge'" class="tab-content recharge-tab">
+    <div class="card recharge-card mb-3">
+      <div class="card-header">Recharge Téléphonique</div>
+      <div class="card-body">
+        <form (ngSubmit)="executeRecharge()">
+          <div class="row">
+            <div class="col-md-4 mb-2">
+              <label for="operator">Opérateur</label>
+              <select id="operator" class="form-select" [(ngModel)]="rechargeRequest.operatorCode" name="operatorCode" required>
+                <option *ngFor="let op of operators" [value]="op.code">{{op.name}}</option>
+              </select>
+            </div>
+            <div class="col-md-4 mb-2">
+              <label for="phone">Numéro de téléphone</label>
+              <input id="phone" class="form-control" [(ngModel)]="rechargeRequest.phoneNumber" name="phoneNumber" (blur)="validatePhoneNumber()" required>
+              <small *ngIf="phoneValidation" [class.text-success]="phoneValidation.valid" [class.text-danger]="!phoneValidation.valid">
+                {{phoneValidation.message}}
+              </small>
+            </div>
+            <div class="col-md-2 mb-2">
+              <label for="amount">Montant</label>
+              <input id="amount" type="number" class="form-control" [(ngModel)]="rechargeRequest.amount" name="amount" min="1" required>
+            </div>
+            <div class="col-md-2 mb-2">
+              <label for="pin">PIN</label>
+              <input id="pin" type="password" class="form-control" [(ngModel)]="rechargeRequest.transactionPin" name="transactionPin" required>
+            </div>
+          </div>
+          <button class="btn btn-primary mt-2" type="submit" [disabled]="!rechargeRequest.phoneNumber || !rechargeRequest.operatorCode || !rechargeRequest.amount || !rechargeRequest.transactionPin">
+            Recharger
+          </button>
+        </form>
+      </div>
+    </div>
+    <div class="card recharge-card">
+      <div class="card-header">Historique des recharges</div>
+      <div class="card-body">
+        <div class="table-responsive recharge-table">
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th>Référence</th>
+              <th>Numéro</th>
+              <th>Opérateur</th>
+              <th>Montant</th>
+              <th>Date</th>
+              <th>Statut</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let recharge of rechargeHistory?.history">
+              <td>{{recharge.transactionReference || '-'}}</td>
+              <td>{{recharge.phoneNumber}}</td>
+              <td>{{recharge.operatorCode}}</td>
+              <td>{{recharge.amount | currency:accountInfo?.currency || 'MAD'}}</td>
+              <td>{{parseCustomDate(recharge.createdAt)}}</td>
+              <td>
+                <span [class.badge-success]="recharge.status === 'SUCCESS'"
+                      [class.badge-warning]="recharge.status === 'PENDING'"
+                      [class.badge-danger]="recharge.status === 'FAILED'"
+                      class="badge">
+                  {{recharge.status}}
+                </span>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <!-- Chatbot Component -->
-  <app-chatbot [clientId]="clientId"></app-chatbot>
-
+  <!-- Onglet Crypto -->
+  <div *ngIf="activeTab === 'crypto'" class="tab-content crypto-tab">
+    <div class="card crypto-card mb-3">
+      <div class="card-header">Opérations Crypto</div>
+      <div class="card-body">
+        <form (ngSubmit)="executeCryptoTrade()">
+          <div class="row">
+            <div class="col-md-3 mb-2">
+              <label for="crypto-symbol">Crypto</label>
+              <select id="crypto-symbol" class="form-select" [(ngModel)]="cryptoTransaction.symbol" name="symbol" required>
+                <option *ngFor="let symbol of supportedSymbols" [value]="symbol">{{symbol}}</option>
+              </select>
+            </div>
+            <div class="col-md-3 mb-2">
+              <label for="side">Type</label>
+              <select id="side" class="form-select" [(ngModel)]="cryptoTransaction.side" name="side" required>
+                <option value="BUY">Achat</option>
+                <option value="SELL">Vente</option>
+              </select>
+            </div>
+            <div class="col-md-3 mb-2" *ngIf="cryptoTransaction.side === 'BUY'">
+              <label for="usdAmount">Montant (USD)</label>
+              <input id="usdAmount" type="number" class="form-control" [(ngModel)]="cryptoTransaction.usdAmount" name="usdAmount" min="1" required>
+            </div>
+            <div class="col-md-3 mb-2" *ngIf="cryptoTransaction.side === 'SELL'">
+              <label for="quantity">Quantité</label>
+              <input id="quantity" type="number" class="form-control" [(ngModel)]="cryptoTransaction.quantity" name="quantity" min="0.00000001" step="any" required>
+            </div>
+          </div>
+          <button class="btn btn-primary mt-2" type="submit"
+                  [disabled]="!cryptoTransaction.symbol || (cryptoTransaction.side === 'BUY' && !cryptoTransaction.usdAmount) || (cryptoTransaction.side === 'SELL' && !cryptoTransaction.quantity)">
+            {{cryptoTransaction.side === 'BUY' ? 'Acheter' : 'Vendre'}}
+          </button>
+        </form>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card crypto-card mb-3">
+          <div class="card-header">Solde Crypto</div>
+          <div class="card-body">
+            <ul>
+              <li *ngFor="let currency of (cryptoBalance | keyvalue)">
+                {{currency.key}}: {{currency.value}}
+              </li>
+            </ul>
+            <div>Valeur totale du portefeuille: <b>{{portfolioValue | currency:'USD'}}</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card crypto-card mb-3">
+          <div class="card-header">Taux de change</div>
+          <div class="card-body">
+            <ul>
+              <li *ngFor="let rate of (cryptoRates | keyvalue)">
+                {{rate.key}}: {{rate.value | number:'1.2-8'}}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card crypto-card">
+      <div class="card-header">Historique des transactions crypto</div>
+      <div class="card-body">
+        <div class="table-responsive crypto-table">
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Symbole</th>
+              <th>Quantité</th>
+              <th>Prix</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let tx of cryptoHistory">
+              <td>{{parseCustomDate(tx.timestamp)}}</td>
+              <td>{{tx.side}}</td>
+              <td>{{tx.symbol}}</td>
+              <td>{{tx.quantity}}</td>
+              <td>{{tx.price | currency:'USD'}}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-chatbot></app-chatbot>
 </div>

@@ -6,8 +6,7 @@ import { provideToastr } from 'ngx-toastr';
 
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
-import { importProvidersFrom } from '@angular/core';
-import { ToastrModule } from 'ngx-toastr';
+
 
 
 bootstrapApplication(AppComponent, {
@@ -20,5 +19,4 @@ bootstrapApplication(AppComponent, {
       preventDuplicates: true
     })
   ]
-});
-
+}).catch(err => console.error(err));

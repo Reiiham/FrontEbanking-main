@@ -14,9 +14,6 @@ import {VirementComponent} from './components/virement/virement.component';
 import { OperationComponent } from './components/operation/operation.component';
 import {AddAccountComponent} from './components/add-account/add-account.component';
 
-
-
-
 const routes: Routes = [
   {
     path: '',

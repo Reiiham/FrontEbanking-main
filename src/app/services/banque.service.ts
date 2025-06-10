@@ -56,12 +56,12 @@ export class ClientService {
   };
 
   addAccount(data: any): Observable<any> {
-  const url = `${this.baseUrl}/clients/add-account`;
-  return this.http.post(url, data, {
-    headers: this.getAuthHeaders(),  // ⬅️ Ce header doit inclure le token !
-    responseType: 'json'
-  });
-}
+    const url = `${this.baseUrl}/clients/add-account`;
+    return this.http.post(url, data, {
+      headers: this.getAuthHeaders(),  // ⬅️ Ce header doit inclure le token !
+      responseType: 'json'
+    });
+  }
 
 
 
@@ -161,18 +161,18 @@ export class ClientService {
   }
 
   updateClient(data: ClientUpdateRequest): Observable<any> {
-  console.log('✏️ Calling updateClient() with data:', data);
-  const url = `${this.baseUrl}/update`;
-  console.log('🌐 URL:', url);
+    console.log('✏️ Calling updateClient() with data:', data);
+    const url = `${this.baseUrl}/update`;
+    console.log('🌐 URL:', url);
 
-  return this.http.put(url, data, {
-    headers: this.getAuthHeaders(),
-    responseType: 'text' // << ✅ ajouter ça
-  }).pipe(
-    tap(result => console.log('✅ Update client result:', result)),
-    catchError(this.handleError('updateClient'))
-  );
-}
+    return this.http.put(url, data, {
+      headers: this.getAuthHeaders(),
+      responseType: 'text' // << ✅ ajouter ça
+    }).pipe(
+      tap(result => console.log('✅ Update client result:', result)),
+      catchError(this.handleError('updateClient'))
+    );
+  }
 
 
   deleteClient(payload: { clientId: string; supervisorCode: string }): Observable<any> {
@@ -196,13 +196,13 @@ export class ClientService {
     console.log('📊 Params:', { compteBloque, documentsComplets });
 
     return this.http.put(url, null, {
-  headers: this.getAuthHeaders(),
-  params: {
-    compteBloque: compteBloque.toString(),
-    documentsComplets: documentsComplets.toString()
-  },
-  responseType: 'text' as 'json' // 👈 ajoute cette ligne
-});
+      headers: this.getAuthHeaders(),
+      params: {
+        compteBloque: compteBloque.toString(),
+        documentsComplets: documentsComplets.toString()
+      },
+      responseType: 'text' as 'json' // 👈 ajoute cette ligne
+    });
 
   }
 }
