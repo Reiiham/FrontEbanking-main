@@ -7,6 +7,8 @@ import { provideToastr } from 'ngx-toastr';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 
+
+
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),

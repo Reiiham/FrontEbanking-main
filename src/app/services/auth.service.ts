@@ -221,7 +221,6 @@ export class AuthService {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
-
     return this.http.get<{ clientId: string }>(`${this.apiUrl}/me`, { headers }).pipe(
       tap(response => {
         if (isPlatformBrowser(this.platformId)) {
@@ -253,7 +252,6 @@ export class AuthService {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
-
     return this.http.get<{ role: string }>(`${this.apiUrl}/role`, { headers }).pipe(
       tap(response => {
         if (isPlatformBrowser(this.platformId)) {

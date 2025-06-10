@@ -5,11 +5,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 @Component
-<<<<<<< HEAD
-@PropertySource("classpath:sms.properties")
-=======
 @PropertySource("classpath:mail.properties")
->>>>>>> 11051e1e6c0c6b2d20e5f951fddd284d7ce5211a
 public class Infobip2FAConfig {
 
     @Value("${infobip.api.key}")

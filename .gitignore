@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # Compiled output
@@ -80,4 +80,4 @@ build/
 
 ### Mac OS ###
 .DS_Store
->>>>>>> f309239567af703c95951bfc90587792782959a4
+>>>>>>> 419eb04890b592672f556974e2726c925b45feea

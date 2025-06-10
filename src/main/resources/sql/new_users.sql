@@ -18,16 +18,6 @@ INSERT INTO users (
       ('1985-05-12', false, true, NULL, 4, NULL, '061293470', 'YZ39209', 'siham.belahcen@hotmail.com', 'kuromi', 'West',
        '$2a$10$0M/EfEspItRf3IBMzysxXeW8DJgHXCdpDiFf4FrSPrnEMj3i30lme', 'CLIENT', NULL, 'DNH4004');
 -- mdp est siham
-<<<<<<< HEAD
-INSERT INTO accounts (
-    balance, user_id, accountnumber, id, rib, type, transactionpin
-) VALUES
-      (295000, 3, 'I0a9QU1IIC1EkyO49opaCQ==', '28a5c45c-0846-47a6-a145-cf2614a0dec3', '123456789000272302340910', 'courant', '1234'),
-      (294000, 4, 'bMcD2uEJDyl3WKt7emHydQ==', 'dd287a57-458b-42a9-a0e2-1d5859e1323a', '123456789000633597536120', 'courant', '1234'),
-      (296000, 2, 'MG1eBBENI1qG1k6Gb5DEVw==', '12deba08-bf46-4719-afdf-b20efd374a1a', '123456789000928126314319', 'courant', '1234');
-
--- Insert into user_servicesactifs table
-=======
 
 
 INSERT INTO accounts (
@@ -49,4 +39,3 @@ INSERT INTO user_servicesactifs (user_id, servicesactifs) VALUES
                                                               (2, 'ACCES_EN_LIGNE');
 
 
->>>>>>> 11051e1e6c0c6b2d20e5f951fddd284d7ce5211a

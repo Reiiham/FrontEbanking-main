@@ -1,15 +1,6 @@
 
 package ma.ensa.ebankingver1.controller;
 
-<<<<<<< HEAD
-import jakarta.validation.Valid;
-import ma.ensa.ebankingver1.DTO.BeneficiaryResponseDTO;
-import ma.ensa.ebankingver1.DTO.*;
-import ma.ensa.ebankingver1.DTO.TransferRequest;
-import ma.ensa.ebankingver1.DTO.TransferResponse;
-import ma.ensa.ebankingver1.model.*;
-import ma.ensa.ebankingver1.service.BeneficiaryService;
-=======
 import ma.ensa.ebankingver1.DTO.TransactionHistoryDTO;
 import ma.ensa.ebankingver1.DTO.TransferRequest;
 import ma.ensa.ebankingver1.DTO.TransferResponse;
@@ -17,7 +8,6 @@ import ma.ensa.ebankingver1.model.BankAccount;
 import ma.ensa.ebankingver1.model.BankService;
 import ma.ensa.ebankingver1.model.Transaction;
 import ma.ensa.ebankingver1.model.User;
->>>>>>> 11051e1e6c0c6b2d20e5f951fddd284d7ce5211a
 import ma.ensa.ebankingver1.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,10 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-<<<<<<< HEAD
-import java.util.Arrays;
-=======
->>>>>>> 11051e1e6c0c6b2d20e5f951fddd284d7ce5211a
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -46,11 +32,6 @@ public class ClientController {
 
     @Autowired
     private BankAccountService bankAccountService;
-<<<<<<< HEAD
-    @Autowired
-    private BeneficiaryService beneficiaryService;
-=======
->>>>>>> 11051e1e6c0c6b2d20e5f951fddd284d7ce5211a
 
     @Autowired
     private TransactionService transactionService;
@@ -270,229 +251,6 @@ public class ClientController {
 
         return transactionId;
     }
-<<<<<<< HEAD
-    /**
-     * Obtenir tous les bénéficiaires d'un client
-     */
-    @GetMapping("/{clientId}/beneficiaries")
-    public ResponseEntity<?> getBeneficiaries(
-            @PathVariable("clientId") Long clientId,
-            @RequestParam(value = "actif", required = false) Boolean actif,
-            Authentication authentication) {
-
-        try {
-            User currentUser = userService.findByUsername(authentication.getName());
-            if (!currentUser.getId().equals(clientId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "Accès non autorisé"));
-            }
-
-            List<Beneficiary> beneficiaries = beneficiaryService.findByUserIdAndActif(clientId, actif);
-            List<BeneficiaryResponseDTO> beneficiaryDTOs = beneficiaries.stream()
-                    .map(BeneficiaryResponseDTO::new)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(beneficiaryDTOs);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erreur lors de la récupération des bénéficiaires"));
-        }
-    }
-
-    /**
-     * Ajouter un nouveau bénéficiaire
-     */
-    @PostMapping("/{clientId}/beneficiaries")
-    public ResponseEntity<?> addBeneficiary(
-            @PathVariable("clientId") Long clientId,
-            @Valid @RequestBody CreateBeneficiaryRequest request,
-            Authentication authentication) {
-
-        try {
-            User currentUser = userService.findByUsername(authentication.getName());
-            if (!currentUser.getId().equals(clientId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "Accès non autorisé"));
-            }
-
-            // Vérifier que le RIB existe et est valide
-            BankAccount targetAccount = bankAccountService.findByRib(request.getRib());
-            if (targetAccount == null) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error", "RIB invalide ou compte inexistant"));
-            }
-
-            // Vérifier que l'utilisateur n'ajoute pas son propre compte
-            if (targetAccount.getUser().getId().equals(clientId)) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Vous ne pouvez pas vous ajouter comme bénéficiaire"));
-            }
-
-            // Vérifier que le bénéficiaire n'existe pas déjà
-            if (beneficiaryService.existsByUserIdAndRib(clientId, request.getRib())) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Ce bénéficiaire existe déjà"));
-            }
-
-            Beneficiary beneficiary = beneficiaryService.createBeneficiary(currentUser, request);
-            return ResponseEntity.ok(new BeneficiaryResponseDTO(beneficiary));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erreur lors de l'ajout du bénéficiaire: " + e.getMessage()));
-        }
-    }
-
-    /**
-     * Modifier un bénéficiaire
-     */
-    @PutMapping("/{clientId}/beneficiaries/{beneficiaryId}")
-    public ResponseEntity<?> updateBeneficiary(
-            @PathVariable("clientId") Long clientId,
-            @PathVariable("beneficiaryId") Long beneficiaryId,
-            @Valid @RequestBody UpdateBeneficiaryRequest request,
-            Authentication authentication) {
-
-        try {
-            User currentUser = userService.findByUsername(authentication.getName());
-            if (!currentUser.getId().equals(clientId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "Accès non autorisé"));
-            }
-
-            Beneficiary beneficiary = beneficiaryService.findByIdAndUserId(beneficiaryId, clientId);
-            if (beneficiary == null) {
-                return ResponseEntity.notFound().build();
-            }
-
-            Beneficiary updatedBeneficiary = beneficiaryService.updateBeneficiary(beneficiary, request);
-            return ResponseEntity.ok(new BeneficiaryResponseDTO(updatedBeneficiary));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erreur lors de la modification du bénéficiaire"));
-        }
-    }
-
-    /**
-     * Supprimer (désactiver) un bénéficiaire
-     */
-    @DeleteMapping("/{clientId}/beneficiaries/{beneficiaryId}")
-    public ResponseEntity<?> deleteBeneficiary(
-            @PathVariable("clientId") Long clientId,
-            @PathVariable("beneficiaryId") Long beneficiaryId,
-            Authentication authentication) {
-
-        try {
-            User currentUser = userService.findByUsername(authentication.getName());
-            if (!currentUser.getId().equals(clientId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "Accès non autorisé"));
-            }
-
-            Beneficiary beneficiary = beneficiaryService.findByIdAndUserId(beneficiaryId, clientId);
-            if (beneficiary == null) {
-                return ResponseEntity.notFound().build();
-            }
-
-            beneficiaryService.deactivateBeneficiary(beneficiary);
-            return ResponseEntity.ok(Map.of("message", "Bénéficiaire supprimé avec succès"));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erreur lors de la suppression du bénéficiaire"));
-        }
-    }
-
-    /**
-     * Obtenir les détails d'un bénéficiaire spécifique
-     */
-    @GetMapping("/{clientId}/beneficiaries/{beneficiaryId}")
-    public ResponseEntity<?> getBeneficiary(
-            @PathVariable("clientId") Long clientId,
-            @PathVariable("beneficiaryId") Long beneficiaryId,
-            Authentication authentication) {
-
-        try {
-            User currentUser = userService.findByUsername(authentication.getName());
-            if (!currentUser.getId().equals(clientId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "Accès non autorisé"));
-            }
-
-            Beneficiary beneficiary = beneficiaryService.findByIdAndUserId(beneficiaryId, clientId);
-            if (beneficiary == null) {
-                return ResponseEntity.notFound().build();
-            }
-
-            return ResponseEntity.ok(new BeneficiaryResponseDTO(beneficiary));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erreur lors de la récupération du bénéficiaire"));
-        }
-    }
-
-    /**
-     * Rechercher des bénéficiaires par nom
-     */
-    @GetMapping("/{clientId}/beneficiaries/search")
-    public ResponseEntity<?> searchBeneficiaries(
-            @PathVariable("clientId") Long clientId,
-            @RequestParam("query") String query,
-            Authentication authentication) {
-
-        try {
-            User currentUser = userService.findByUsername(authentication.getName());
-            if (!currentUser.getId().equals(clientId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "Accès non autorisé"));
-            }
-
-            List<Beneficiary> beneficiaries = beneficiaryService.searchBeneficiaries(clientId, query);
-            List<BeneficiaryResponseDTO> beneficiaryDTOs = beneficiaries.stream()
-                    .map(BeneficiaryResponseDTO::new)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(beneficiaryDTOs);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erreur lors de la recherche des bénéficiaires"));
-        }
-    }
-
-    /**
-     * Obtenir les types de relation disponibles
-     */
-    @GetMapping("/{clientId}/beneficiaries/relation-types")
-    public ResponseEntity<?> getRelationTypes(
-            @PathVariable("clientId") Long clientId,
-            Authentication authentication) {
-
-        try {
-            User currentUser = userService.findByUsername(authentication.getName());
-            if (!currentUser.getId().equals(clientId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "Accès non autorisé"));
-            }
-
-            Map<String, String> relationTypes = Arrays.stream(RelationType.values())
-                    .collect(Collectors.toMap(
-                            RelationType::name,
-                            RelationType::getDisplayName
-                    ));
-
-            return ResponseEntity.ok(relationTypes);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erreur lors de la récupération des types de relation"));
-        }
-    }
-=======
->>>>>>> 11051e1e6c0c6b2d20e5f951fddd284d7ce5211a
 }
 
 /*

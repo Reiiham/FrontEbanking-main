@@ -16,6 +16,11 @@
       <a class="nav-link" [class.active]="activeTab === 'Crypto'" (click)="activeTab = 'crypto';loadTransferHistory() ">Crypto</a>
     </li>
     <li class="nav-item right">
+      <a class="nav-link" [class.active]="activeTab === 'qr'" (click)="activeTab = 'qr'">
+        QR Paiement
+      </a>
+    </li>
+    <li class="nav-item right">
       <a class="nav-link" [class.active]="activeTab === 'Recharge'" (click)="activeTab = 'recharge'; loadTransferHistory()">recharge</a>
     </li>
   </ul>
@@ -323,6 +328,76 @@
       </div>
     </div>
   </div>
+  <div *ngIf="activeTab === 'qr'" class="tab-content">
+  <div class="card">
+    <div class="card-header">Générer un QR Code pour Paiement</div>
+    <div class="card-body">
+      <form (ngSubmit)="generateQr()" #qrForm="ngForm" novalidate>
+        <div class="mb-3">
+          <label>RIB Destinataire</label>
+          <input type="text" class="form-control" [(ngModel)]="qrData.rib" name="rib" required pattern="^\d{23}$">
+        </div>
+        <div class="mb-3">
+          <label>Montant</label>
+          <input type="number" class="form-control" [(ngModel)]="qrData.amount" name="amount" required min="0.01">
+        </div>
+        <div class="mb-3">
+          <label>Description</label>
+          <input type="text" class="form-control" [(ngModel)]="qrData.description" name="description">
+        </div>
+        <button class="btn btn-primary" type="submit" [disabled]="!qrForm.form.valid">Générer QR</button>
+      </form>
+
+      <div *ngIf="qrImage" class="text-center mt-3">
+        <h5>QR Code Généré :</h5>
+        <img [src]="qrImage" alt="QR Code" style="max-width: 200px;">
+      </div>
+      <div class="text-center mt-2">
+        <button class="btn btn-outline-primary" (click)="useQrToPay()">Utiliser ce QR pour payer</button>
+      </div>
+
+      <hr class="my-4">
+
+      <div *ngIf="qrImage" class="card mt-4">
+  <div class="card-header">Effectuer un Paiement depuis un QR</div>
+  <div class="card-body">
+    <form>
+            <div class="mb-3">
+        <label>Compte Source</label>
+        <select class="form-select" [(ngModel)]="qrPaymentData.sourceAccountId" name="sourceAccountId" required>
+          <option value="">Sélectionner un compte</option>
+          <option *ngFor="let acc of clientAccounts" [value]="acc.id">
+            {{ acc.rib }} ({{ acc.balance | currency:'MAD' }})
+          </option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label>RIB du Destinataire</label>
+        <input class="form-control" [(ngModel)]="qrPaymentData.rib" name="rib" readonly>
+      </div>
+      <div class="mb-3">
+        <label>Montant</label>
+        <input class="form-control" type="number" [(ngModel)]="qrPaymentData.amount" name="amount" readonly>
+      </div>
+      <div class="mb-3">
+        <label>Description</label>
+        <input class="form-control" [(ngModel)]="qrPaymentData.description" name="description" readonly>
+      </div>
+      <button type="button" class="btn btn-success" (click)="processQrPayment()" [disabled]="!isQrPaymentValid()">
+        Effectuer le Paiement
+      </button>
+    </form>
+  </div>
+</div>
+
+
+      <div *ngIf="qrError" class="alert alert-danger mt-3">
+        {{ qrError }}
+      </div>
+    </div>
+  </div>
+</div>
+
   <!-- Onglet Recharge -->
   <div *ngIf="activeTab === 'recharge'" class="tab-content recharge-tab">
     <div class="card recharge-card mb-3">
@@ -489,4 +564,3 @@
   </div>
   <app-chatbot></app-chatbot>
 </div>
-

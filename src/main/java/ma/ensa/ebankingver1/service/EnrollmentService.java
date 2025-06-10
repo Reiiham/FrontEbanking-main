@@ -165,11 +165,7 @@ public class EnrollmentService {
     }
 
     private String generateRib() {
-<<<<<<< HEAD
-        String bankCode = "123456";
-=======
         String bankCode = "12345";
->>>>>>> 11051e1e6c0c6b2d20e5f951fddd284d7ce5211a
         String branchCode = "67890";
         String accountNumberPart = String.format("%011d", (long)(Math.random() * 1_000_000_000L));
         String key = String.format("%02d", (int)(Math.random() * 100));

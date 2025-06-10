@@ -62,6 +62,12 @@ export const routes: Routes = [
     component: ClientDashboardComponent,
     canActivate: [AuthGuard]
   },
+  // {
+  //   path: 'client/:clientId/qr-payment',
+  //   loadComponent: () => import('./qr-payment/qr-payment.component').then(m => m.QrPaymentComponent),
+  //   canActivate: [AuthGuard]
+  // },
+
 /*
   {
     path: 'client/:clientId/accounts',
@@ -96,5 +102,4 @@ export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];
-
 
