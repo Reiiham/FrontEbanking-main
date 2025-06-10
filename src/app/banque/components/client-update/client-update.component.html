@@ -1,0 +1,50 @@
+<div class="update-container">
+  <h2>📝 Modifier le Client</h2>
+
+  <div *ngIf="error" class="alert error">{{ error }}</div>
+  <div *ngIf="message" class="alert success">{{ message }}</div>
+
+  <form (ngSubmit)="update()" #form="ngForm" class="form-grid">
+    <div class="form-group">
+      <label>Prénom :</label>
+      <input [(ngModel)]="updatedFirstName" name="firstName" required />
+    </div>
+
+    <div class="form-group">
+      <label>Nom :</label>
+      <input [(ngModel)]="updatedLastName" name="lastName" required />
+    </div>
+
+    <div class="form-group">
+      <label>Email :</label>
+      <input [(ngModel)]="updatedEmail" name="email" type="email" />
+    </div>
+
+    <div class="form-group">
+      <label>Téléphone :</label>
+      <input [(ngModel)]="updatedPhone" name="phone" />
+    </div>
+
+    <div class="form-group">
+      <label>
+        <input type="checkbox" [(ngModel)]="updatedDocumentsComplets" name="documentsComplets" />
+        Documents complets ?
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label>
+        <input type="checkbox" [(ngModel)]="updatedCompteBloque" name="compteBloque" />
+        Compte bloqué ?
+      </label>
+    </div>
+
+
+    <div class="form-group full-width">
+      <label>Mot de passe superviseur :</label>
+      <input type="password" [(ngModel)]="supervisorPassword" name="password" required />
+    </div>
+
+    <button type="submit" class="btn-submit">Mettre à jour</button>
+  </form>
+</div>

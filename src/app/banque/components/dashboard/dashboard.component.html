@@ -1,0 +1,46 @@
+<div class="dashboard-container">
+  <h1 class="dashboard-title">Tableau de Bord</h1>
+
+  <!-- Ligne 1 : cartes rectangles -->
+  <div class="stats-grid top-row">
+    <div class="stat-card">
+      <div class="icon-circle">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="stat-info">
+        <h2>Clients</h2>
+        <p>{{ clientCount }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="icon-circle">
+        <i class="fas fa-credit-card"></i>
+      </div>
+      <div class="stat-info">
+        <h2>Comptes</h2>
+        <p>{{ accountCount }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ligne 2 : cartes carrées -->
+  <div class="stats-grid bottom-row">
+    <div class="stat-card square-card link-card" [routerLink]="['/employee/transactions']">
+      <div class="icon-circle">
+        <i class="fas fa-money-bill-transfer"></i>
+      </div>
+      <div class="stat-info">
+        <h2>Effectuer une transaction</h2>
+      </div>
+    </div>
+    <div class="stat-card square-card link-card" [routerLink]="['/employee/clients']">
+      <div class="icon-circle">
+        <i class="fas fa-search"></i>
+      </div>
+      <div class="stat-info">
+        <h2>Trouver un client</h2>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,91 @@
+<div class="create-client-form">
+  <h2>Inscription d'un Nouveau Client</h2>
+
+  <div *ngIf="error" class="error">{{ error }}</div>
+  <div *ngIf="message" class="success">{{ message }}</div>
+
+  <form (ngSubmit)="create()" #form="ngForm">
+    <div class="form-group">
+      <label for="firstName">Prénom :</label>
+      <input type="text" id="firstName" name="firstName" [(ngModel)]="firstName" required />
+    </div>
+
+    <div class="form-group">
+      <label for="lastName">Nom :</label>
+      <input type="text" id="lastName" name="lastName" [(ngModel)]="lastName" required />
+    </div>
+
+    <div class="form-group">
+      <label for="cin">CIN :</label>
+      <input type="text" id="cin" name="cin" [(ngModel)]="cin" required placeholder="Ex: AB123456" />
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email :</label>
+      <input type="email" id="email" name="email" [(ngModel)]="email" required />
+    </div>
+
+    <div class="form-group">
+      <label for="tel">Téléphone :</label>
+      <input type="tel" id="tel" name="tel" [(ngModel)]="tel" required />
+    </div>
+
+    <div class="form-group">
+      <label for="birthDate">Date de naissance :</label>
+      <input type="date" id="birthDate" name="birthDate" [(ngModel)]="birthDate" required />
+    </div>
+
+    <div class="form-group">
+      <label for="accountType">Type de compte :</label>
+      <select id="accountType" name="accountType" [(ngModel)]="accountType" required>
+        <option value="courant">Courant</option>
+        <option value="épargne">Épargne</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="balance">Solde initial :</label>
+      <input type="number" id="balance" name="balance" [(ngModel)]="balance" required />
+    </div>
+
+
+    <div class="form-group checkbox-group">
+      <div class="checkbox-item">
+        <input type="checkbox" id="documentsComplets" [(ngModel)]="documentsComplets" name="documentsComplets" />
+        <label for="documentsComplets">Documents complets ?</label>
+      </div>
+      <div class="checkbox-item">
+        <input type="checkbox" id="compteBloque" [(ngModel)]="compteBloque" name="compteBloque" />
+        <label for="compteBloque">Compte bloqué ?</label>
+      </div>
+    </div>
+
+
+    <div class="form-actions">
+      <button type="submit">Créer</button>
+    </div>
+  </form>
+
+  <button type="button" (click)="toggleRecap()">Voir le récapitulatif</button>
+
+  <!-- ✅ MODAL DE RÉCAPITULATIF -->
+  <div class="modal-backdrop" *ngIf="showRecap" (click)="toggleRecap()"></div>
+  <div class="modal" *ngIf="showRecap">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>Récapitulatif</h3>
+      <ul>
+        <li><strong>Prénom :</strong> {{ firstName }}</li>
+        <li><strong>Nom :</strong> {{ lastName }}</li>
+        <li><strong>CIN :</strong> {{ cin }}</li>
+        <li><strong>Email :</strong> {{ email }}</li>
+        <li><strong>Téléphone :</strong> {{ tel }}</li>
+        <li><strong>Date de naissance :</strong> {{ birthDate }}</li>
+        <li><strong>Type de compte :</strong> {{ accountType }}</li>
+        <li><strong>Solde initial :</strong> {{ balance | currency:'EUR' }}</li>
+        <li><strong>Documents complets :</strong> {{ documentsComplets ? 'Oui' : 'Non' }}</li>
+        <li><strong>Compte bloqué :</strong> {{ compteBloque ? 'Oui' : 'Non' }}</li>
+      </ul>
+      <button (click)="toggleRecap()">Fermer</button>
+    </div>
+  </div>
+</div>

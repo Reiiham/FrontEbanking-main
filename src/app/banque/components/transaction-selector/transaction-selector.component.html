@@ -1,0 +1,15 @@
+<h2 class="page-title">Choisir une transaction</h2>
+
+<div class="transaction-grid">
+  <div class="transaction-card" [routerLink]="['virement']">
+    <i class="fas fa-exchange-alt"></i>
+    <h3>Virement</h3>
+  </div>
+
+  <div class="transaction-card" [routerLink]="['operation']">
+    <i class="fas fa-hand-holding-usd"></i>
+    <h3>Dépôt/Retrait</h3>
+  </div>
+</div>
+
+<router-outlet></router-outlet>

@@ -1,0 +1,22 @@
+<div class="status-container">
+  <h2>🛠️ Modifier le Statut du Client</h2>
+
+  <div *ngIf="clientId" class="form-group">
+    <div class="field-group">
+      <label>Compte bloqué :</label>
+      <label><input type="radio" [(ngModel)]="compteBloque" [value]="true" name="compteBloque" /> Oui</label>
+      <label><input type="radio" [(ngModel)]="compteBloque" [value]="false" name="compteBloque" /> Non</label>
+    </div>
+
+    <div class="field-group">
+      <label>Documents complets :</label>
+      <label><input type="radio" [(ngModel)]="documentsComplets" [value]="true" name="documentsComplets" /> Oui</label>
+      <label><input type="radio" [(ngModel)]="documentsComplets" [value]="false" name="documentsComplets" /> Non</label>
+    </div>
+
+    <button (click)="toggle()" class="btn-update">Mettre à jour</button>
+
+    <div *ngIf="message" class="success">{{ message }}</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+  </div>
+</div>

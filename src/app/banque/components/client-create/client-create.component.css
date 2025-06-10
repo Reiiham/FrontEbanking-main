@@ -1,0 +1,193 @@
+/* ===== Conteneur du formulaire d'inscription ===== */
+.create-client-form {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 16px;
+  max-width: 700px;
+  margin: 40px auto;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', sans-serif;
+  color: #1e293b;
+}
+
+/* ===== Titre principal ===== */
+.create-client-form h2 {
+  color: #1e3a8a;
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 32px;
+  font-weight: 700;
+}
+
+/* ===== Champs du formulaire ===== */
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 15px;
+  color: #1e293b;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 15px;
+  background-color: #f9fafb;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+/* ===== Boutons / Actions ===== */
+.form-actions {
+  text-align: center;
+  margin-top: 30px;
+}
+
+button {
+  background-color: #2563eb;
+  color: white;
+  padding: 12px 28px;
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #1e40af;
+}
+
+/* ===== Messages ===== */
+.success,
+.error {
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.success {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.error {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ===== Modal Réutilisable ===== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(30, 41, 59, 0.5);
+  z-index: 99;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  width: 90%;
+  max-width: 520px;
+  animation: fadeInUp 0.25s ease-out;
+}
+
+/* ===== Contenu du modal ===== */
+.modal-content h3 {
+  margin-top: 0;
+  color: #1e3a8a;
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.modal-content ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.modal-content li {
+  margin-bottom: 10px;
+  font-size: 15px;
+  color: #334155;
+}
+
+.modal-content button {
+  background-color: #2563eb;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+  transition: background-color 0.2s ease;
+}
+
+.modal-content button:hover {
+  background-color: #1d4ed8;
+}
+
+/* ===== Animation ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+@media (max-width: 500px) {
+  .create-client-form {
+    padding: 24px;
+  }
+
+  button {
+    width: 100%;
+  }
+}
+.checkbox-group {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}

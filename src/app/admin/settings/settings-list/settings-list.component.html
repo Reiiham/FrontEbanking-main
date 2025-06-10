@@ -1,0 +1,153 @@
+<div class="settings-list">
+  <h2>Paramètres Généraux</h2>
+
+  <!-- Bouton Ajouter -->
+  @if (!isEditMode) {
+    <button (click)="addNewSetting()" class="btn-add">+ Ajouter un paramètre</button>
+  }
+  @if (isEditMode && selectedSetting) {
+    <app-settings-edit-form
+      [setting]="selectedSetting"
+      (save)="onSaveSetting($event)"
+      (cancel)="cancelEdit()"
+      (delete)="deleteSetting($event)"
+    ></app-settings-edit-form>
+  }
+
+  @if (loading) {
+    <div class="loading">
+      <span class="spinner"></span> Chargement...
+    </div>
+  } @else if (error) {
+    <div class="error">
+      <span class="error-icon">⚠️</span> {{ error }}
+      <button (click)="loadSettings()" class="btn-retry">Réessayer</button>
+    </div>
+  } @else {
+    @if (!settings.length) {
+      <p class="empty-state">
+        <span class="empty-icon">📭</span> Aucun paramètre disponible.
+      </p>
+    }
+
+    <!-- Finance Settings -->
+    @if (financeSettings.length) {
+      <div class="settings-section">
+        <h3>Paramètres liés à la Finance</h3>
+        <table>
+          <thead>
+          <tr>
+            <th (click)="sortSettings('finance', 'key')">
+              Nom <span class="sort-icon">{{ getSortIcon('finance', 'key') }}</span>
+            </th>
+            <th (click)="sortSettings('finance', 'value')">
+              Valeur <span class="sort-icon">{{ getSortIcon('finance', 'value') }}</span>
+            </th>
+            <th (click)="sortSettings('finance', 'description')">
+              Description <span class="sort-icon">{{ getSortIcon('finance', 'description') }}</span>
+            </th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (setting of financeSettings; track setting.id) {
+              <tr>
+                <td>{{ setting.label || setting.key }}</td>
+                <td>{{ formatValue(setting.value) }}</td>
+                <td>{{ setting.description || '-' }}</td>
+                <td>
+                  <button (click)="editSetting(setting)" class="btn-edit">Modifier</button>
+                  <button (click)="deleteSetting(setting.id ?? -1)" class="btn-delete" [disabled]="!setting.id">Supprimer</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Security Settings -->
+    @if (securitySettings.length) {
+      <div class="settings-section">
+        <h3>Paramètres liés à la Sécurité</h3>
+        <table>
+          <thead>
+          <tr>
+            <th (click)="sortSettings('security', 'key')">
+              Nom <span class="sort-icon">{{ getSortIcon('security', 'key') }}</span>
+            </th>
+            <th (click)="sortSettings('security', 'value')">
+              Valeur <span class="sort-icon">{{ getSortIcon('security', 'value') }}</span>
+            </th>
+            <th (click)="sortSettings('security', 'description')">
+              Description <span class="sort-icon">{{ getSortIcon('security', 'description') }}</span>
+            </th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (setting of securitySettings; track setting.id) {
+              <tr>
+                <td>{{ setting.label || setting.key }}</td>
+                <td>{{ formatValue(setting.value) }}</td>
+                <td>{{ setting.description || '-' }}</td>
+                <td>
+                  <button (click)="editSetting(setting)" class="btn-edit">Modifier</button>
+                  <button (click)="deleteSetting(setting.id ?? -1)" class="btn-delete" [disabled]="!setting.id">Supprimer</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Other Settings -->
+    @if (otherSettings.length) {
+      <div class="settings-section">
+        <h3>Autres Paramètres</h3>
+        <table>
+          <thead>
+          <tr>
+            <th (click)="sortSettings('other', 'key')">
+              Nom <span class="sort-icon">{{ getSortIcon('other', 'key') }}</span>
+            </th>
+            <th (click)="sortSettings('other', 'value')">
+              Valeur <span class="sort-icon">{{ getSortIcon('other', 'value') }}</span>
+            </th>
+            <th (click)="sortSettings('other', 'description')">
+              Description <span class="sort-icon">{{ getSortIcon('other', 'description') }}</span>
+            </th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (setting of otherSettings; track setting.id) {
+              <tr>
+                <td>{{ setting.label || setting.key }}</td>
+                <td>{{ formatValue(setting.value) }}</td>
+                <td>{{ setting.description || '-' }}</td>
+                <td>
+                  <button (click)="editSetting(setting)" class="btn-edit">Modifier</button>
+                  <button (click)="deleteSetting(setting.id ?? -1)" class="btn-delete" [disabled]="!setting.id">Supprimer</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+
+
+  @if (!isEditMode) {
+    <button (click)="loadSettings()" [disabled]="loading" class="btn-refresh">
+      @if (loading) {
+        <span class="spinner"></span> Chargement...
+      } @else {
+        Rafraîchir
+      }
+    </button>
+  }
+</div>

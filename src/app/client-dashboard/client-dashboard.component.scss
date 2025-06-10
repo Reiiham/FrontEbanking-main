@@ -1,0 +1,686 @@
+// ===== VARIABLES SCSS POUR THÈME BLEU =====
+$primary-blue: #1e40af;
+$secondary-blue: #3b82f6;
+$light-blue: #dbeafe;
+$dark-blue: #1e3a8a;
+$accent-blue: #60a5fa;
+$success-green: #059669;
+$warning-orange: #f59e0b;
+$danger-red: #ef4444;
+$neutral-gray: #6b7280;
+
+// Dégradés
+$gradient-primary: linear-gradient(135deg, $primary-blue 0%, $secondary-blue 100%);
+$gradient-success: linear-gradient(135deg, $success-green 0%, #10b981 100%);
+$gradient-danger: linear-gradient(135deg, #dc2626 0%, $danger-red 100%);
+$gradient-neutral: linear-gradient(135deg, $neutral-gray 0%, #9ca3af 100%);
+$gradient-background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);
+
+// Ombres et effets
+$card-shadow: 0 10px 25px rgba($primary-blue, 0.1);
+$card-shadow-hover: 0 15px 35px rgba($primary-blue, 0.15);
+$button-shadow: 0 4px 15px rgba($primary-blue, 0.2);
+$button-shadow-hover: 0 6px 20px rgba($primary-blue, 0.3);
+
+// Rayons de bordure
+$border-radius: 12px;
+$border-radius-sm: 8px;
+$border-radius-lg: 16px;
+
+// Transitions
+$transition-base: all 0.3s ease;
+$transition-fast: all 0.2s ease;
+$transition-slow: all 0.5s ease;
+
+// Espacements
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+
+// ===== MIXINS UTILES =====
+@mixin button-hover-effect {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  &:hover::before {
+    left: 100%;
+  }
+}
+
+@mixin card-hover-effect {
+  transition: $transition-base;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: $card-shadow-hover;
+  }
+}
+
+@mixin gradient-text($gradient) {
+  background: $gradient;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@mixin focus-outline {
+  &:focus {
+    outline: 2px solid $accent-blue;
+    outline-offset: 2px;
+  }
+}
+
+// ===== STYLES DE BASE =====
+body {
+  background: $gradient-background;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1200px;
+}
+
+// ===== TITRE PRINCIPAL =====
+h2 {
+  @include gradient-text($gradient-primary);
+  font-weight: 700;
+  font-size: 2.5rem;
+  margin-bottom: $spacing-xl;
+  text-align: center;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: $gradient-primary;
+    border-radius: 2px;
+  }
+}
+
+// ===== NAVIGATION =====
+.custom-nav-tabs {
+  list-style: none;     // 🔹 Removes the bullets
+  padding: 0;           // 🔹 Removes default padding
+  display: flex;
+  justify-content: space-between; // Sépare les éléments
+  align-items: center;
+
+  .nav-item {
+    flex: 1; // pour occuper l’espace également
+    text-align: center;
+
+    &.left {
+      text-align: left;
+    }
+
+    &.center {
+      text-align: center;
+    }
+
+    &.right {
+      text-align: right;
+    }
+  }
+}
+
+.nav-tabs {
+  border: none;
+  background: white;
+  border-radius: $border-radius;
+  padding: $spacing-sm;
+  box-shadow: $card-shadow;
+  margin-bottom: $spacing-xl;
+
+  .nav-link {
+    border: none;
+    border-radius: $border-radius-sm;
+    color: $primary-blue;
+    font-weight: 600;
+    padding: 12px 24px;
+    margin: 0 4px;
+    transition: $transition-base;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+      background: $light-blue;
+      color: $dark-blue;
+      transform: translateY(-2px);
+    }
+
+    &.active {
+      background: $gradient-primary;
+      color: white;
+      box-shadow: $button-shadow;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: $accent-blue;
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    &.active::before {
+      transform: scaleX(1);
+    }
+
+    @include focus-outline;
+  }
+}
+
+// ===== CARTES =====
+.card {
+  border: none;
+  border-radius: $border-radius;
+  box-shadow: $card-shadow;
+  background: white;
+  overflow: hidden;
+  margin-bottom: $spacing-lg;
+  @include card-hover-effect;
+
+  &-header {
+    background: $gradient-primary;
+    color: white;
+    border: none;
+    padding: 1.25rem;
+    font-weight: 600;
+
+    h5, h6 {
+      margin: 0;
+      color: white;
+    }
+  }
+
+  &-body {
+    padding: $spacing-lg;
+  }
+}
+
+// ===== FORMULAIRES =====
+.form-control,
+.form-select {
+  border: 2px solid #e5e7eb;
+  border-radius: $border-radius-sm;
+  padding: 12px 16px;
+  transition: $transition-base;
+  background: #f8fafc;
+
+  &:focus {
+    border-color: $secondary-blue;
+    box-shadow: 0 0 0 3px rgba($secondary-blue, 0.1);
+    background: white;
+  }
+
+  @include focus-outline;
+}
+
+.form-label {
+  font-weight: 600;
+  color: $dark-blue;
+  margin-bottom: 8px;
+}
+
+.input-group {
+  .form-control:focus {
+    z-index: 3;
+  }
+
+  .btn {
+    z-index: 2;
+  }
+
+  .form-control:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .btn:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: -1px;
+  }
+}
+
+// ===== BOUTONS =====
+.btn {
+  border-radius: $border-radius-sm;
+  font-weight: 600;
+  padding: 10px 20px;
+  transition: $transition-base;
+  @include button-hover-effect;
+  @include focus-outline;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  // Bouton primaire
+  &-primary {
+    background: $gradient-primary;
+    border: none;
+    box-shadow: $button-shadow;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: $button-shadow-hover;
+    }
+  }
+
+  // Bouton secondaire
+  &-secondary {
+    background: $gradient-neutral;
+    border: none;
+    color: white;
+  }
+
+  // Bouton succès
+  &-success {
+    background: $gradient-success;
+    border: none;
+  }
+
+  // Boutons outline
+  &-outline-primary {
+    border: 2px solid $secondary-blue;
+    color: $secondary-blue;
+    background: transparent;
+
+    &:hover:not(:disabled) {
+      background: $secondary-blue;
+      color: white;
+      transform: translateY(-2px);
+    }
+  }
+
+  &-outline-secondary {
+    border: 2px solid $neutral-gray;
+    color: $neutral-gray;
+
+    &:hover:not(:disabled) {
+      background: $neutral-gray;
+      color: white;
+      transform: translateY(-2px);
+    }
+  }
+
+  &-outline-warning {
+    border: 2px solid $warning-orange;
+    color: $warning-orange;
+
+    &:hover:not(:disabled) {
+      background: $warning-orange;
+      color: white;
+      transform: translateY(-2px);
+    }
+  }
+
+  &-outline-danger {
+    border: 2px solid $danger-red;
+    color: $danger-red;
+
+    &:hover:not(:disabled) {
+      background: $danger-red;
+      color: white;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// ===== ÉLÉMENTS SPÉCIFIQUES =====
+
+// Comptes client
+.card-body .mb-2.p-2.border.rounded {
+  background: linear-gradient(135deg, $light-blue 0%, #f0f9ff 100%);
+  border: 2px solid transparent !important;
+  border-radius: $border-radius !important;
+  padding: $spacing-md !important;
+  margin-bottom: $spacing-md !important;
+  transition: $transition-base;
+
+  &:hover {
+    border-color: $accent-blue !important;
+    transform: translateX(5px);
+  }
+}
+
+// Cartes de bénéficiaires
+.card.mb-2 {
+  border-left: 4px solid $secondary-blue;
+  transition: $transition-base;
+
+  &:hover {
+    border-left-color: $primary-blue;
+    transform: translateX(5px);
+  }
+}
+
+// ===== BADGES =====
+.badge {
+  font-size: 0.75rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+
+  &.bg-success {
+    background: $gradient-success !important;
+  }
+
+  &.bg-danger {
+    background: $gradient-danger !important;
+  }
+
+  &.bg-secondary {
+    background: $gradient-neutral !important;
+  }
+}
+
+// ===== TABLEAUX =====
+.table-responsive {
+  border-radius: $border-radius;
+  overflow: hidden;
+  box-shadow: $card-shadow;
+}
+
+.table {
+  background: white;
+  margin-bottom: 0;
+
+  thead th {
+    background: $gradient-primary;
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: $spacing-md;
+  }
+
+  tbody {
+    tr {
+      transition: $transition-base;
+
+      &:hover {
+        background: $light-blue;
+      }
+    }
+
+    td {
+      padding: $spacing-md;
+      border-color: #e5e7eb;
+      vertical-align: middle;
+    }
+  }
+
+  &-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8fafc;
+  }
+}
+
+// ===== ALERTES =====
+.alert {
+  border: none;
+  border-radius: $border-radius;
+  padding: $spacing-md $spacing-lg;
+  font-weight: 600;
+  margin-top: $spacing-lg;
+
+  &-success {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    border-left: 4px solid #10b981;
+  }
+
+  &-danger {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+    border-left: 4px solid $danger-red;
+  }
+}
+
+// ===== MESSAGES DE VALIDATION =====
+.text-success {
+  color: $success-green !important;
+  font-weight: 600;
+}
+
+.text-danger {
+  color: #dc2626 !important;
+  font-weight: 600;
+}
+
+// ===== ANIMATIONS =====
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tab-content {
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading {
+  animation: pulse 2s infinite;
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 768px) {
+  .container {
+    padding: $spacing-md;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  .nav-tabs .nav-link {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  .card-body {
+    padding: $spacing-md;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  .table {
+    thead th,
+    tbody td {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .nav-tabs {
+    flex-direction: column;
+
+    .nav-link {
+      margin: 2px 0;
+      text-align: center;
+    }
+  }
+
+  .btn-group-vertical .btn {
+    width: 100%;
+    margin-bottom: $spacing-sm;
+  }
+
+  .d-flex.justify-content-between.align-items-center {
+    flex-direction: column;
+    align-items: stretch !important;
+
+    > div {
+      margin-top: $spacing-md;
+    }
+  }
+}
+
+// ===== CONTRÔLES INLINE =====
+.form-control.d-inline-block,
+.form-select.d-inline-block {
+  width: auto !important;
+  min-width: 80px;
+}
+
+// ===== TRANSITIONS GLOBALES =====
+* {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+// ===== RECHARGE TÉLÉPHONIQUE =====
+.recharge-tab {
+  .recharge-card {
+    border-left: 5px solid $secondary-blue;
+    background: linear-gradient(135deg, $light-blue 0%, #f0f9ff 100%);
+    box-shadow: $card-shadow;
+    border-radius: $border-radius;
+    margin-bottom: $spacing-lg;
+
+    .card-header {
+      background: $gradient-primary;
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+      border-bottom: none;
+      padding: $spacing-md $spacing-lg;
+    }
+
+    .card-body {
+      padding: $spacing-lg;
+
+      form {
+        background: white;
+        border-radius: $border-radius-sm;
+        box-shadow: 0 2px 8px rgba($primary-blue, 0.05);
+        padding: $spacing-md $spacing-lg;
+        margin-bottom: $spacing-md;
+
+        .row {
+          align-items: end;
+        }
+
+        label {
+          color: $dark-blue;
+          font-weight: 600;
+        }
+
+        .form-control,
+        .form-select {
+          background: #f8fafc;
+          border: 2px solid #e5e7eb;
+          border-radius: $border-radius-sm;
+          transition: $transition-base;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+          border-color: $secondary-blue;
+          background: white;
+        }
+
+        small {
+          font-size: 0.85rem;
+          margin-top: 2px;
+        }
+      }
+    }
+  }
+
+  .recharge-table {
+    .table {
+      margin-bottom: 0;
+
+      thead th {
+        background: $gradient-primary;
+        color: white;
+        font-weight: 600;
+        border: none;
+      }
+
+      tbody tr {
+        transition: $transition-base;
+
+        &:hover {
+          background: $light-blue;
+        }
+      }
+
+      td {
+        vertical-align: middle;
+        padding: $spacing-md;
+      }
+    }
+
+    .badge-success {
+      background: $gradient-success !important;
+      color: #065f46 !important;
+    }
+    .badge-warning {
+      background: $warning-orange !important;
+      color: white !important;
+    }
+    .badge-danger {
+      background: $gradient-danger !important;
+      color: white !important;
+    }
+  }
+}
+
+// Responsive pour la recharge
+@media (max-width: 768px) {
+  .recharge-tab .recharge-card .card-body {
+    padding: $spacing-md;
+  }
+  .recharge-tab .recharge-card form {
+    padding: $spacing-sm $spacing-md;
+  }
+  .recharge-tab .recharge-table td,
+  .recharge-tab .recharge-table th {
+    padding: 0.5rem !important;
+    font-size: 0.95rem;
+  }
+}

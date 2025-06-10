@@ -1,0 +1,11 @@
+{
+  "/api/admin": {
+    "target": "http://localhost:8090/eBankingVer1_war_exploded",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/api/admin": ""
+    }
+  }
+}

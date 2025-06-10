@@ -1,0 +1,40 @@
+<h2 class="page-title">Effectuer un virement</h2>
+
+<form [formGroup]="virementForm" (ngSubmit)="effectuerVirement()" class="virement-form">
+  <div class="form-group">
+    <label for="fromAccountId">Compte source (ID)</label>
+    <input
+      id="fromAccountId"
+      type="text"
+      class="form-control"
+      formControlName="fromAccountId"
+      placeholder="UUID du compte source" />
+  </div>
+
+  <div class="form-group">
+    <label for="toRib">RIB du destinataire</label>
+    <input
+      id="toRib"
+      type="text"
+      class="form-control"
+      formControlName="toRib"
+      placeholder="RIB du compte destinataire" />
+  </div>
+
+  <div class="form-group">
+    <label for="amount">Montant</label>
+    <input
+      id="amount"
+      type="number"
+      class="form-control"
+      formControlName="amount"
+      placeholder="Montant à transférer" />
+  </div>
+
+  <button class="btn btn-primary" type="submit" [disabled]="virementForm.invalid">
+    Valider
+  </button>
+
+  <div *ngIf="successMessage" class="alert alert-success mt-2">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger mt-2">{{ errorMessage }}</div>
+</form>

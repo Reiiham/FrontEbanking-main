@@ -1,0 +1,18 @@
+package ma.ensa.ebankingver1.model;
+
+public enum BankService {
+    VIREMENT,
+    PAIEMENTS_EN_LIGNE,
+    CONSULTATION_SOLDE,
+    HISTORIQUE_TRANSACTIONS,
+    CHEQUIER,
+    BLOQUER_CARTE,
+    PRET_PERSONNEL,
+    EPARGNE,
+    INVESTISSEMENT,
+    ALERTES,
+    FACTURES,
+    MULTIDEVISES,
+    SERVICE_CLIENT,
+    MESSAGERIE_SECURISÉE
+}

@@ -1,0 +1,54 @@
+<aside class="sidebar">
+  <nav>
+    <ul>
+      <li>
+        <a routerLink="./" routerLinkActive="active">
+          <i class="fas fa-home"></i> Tableau de Bord
+        </a>
+      </li>
+      <li>
+        <a routerLink="clients" routerLinkActive="active">
+          <i class="fas fa-users"></i> Liste des Clients
+        </a>
+      </li>
+      <li>
+        <a routerLink="clients/create" routerLinkActive="active">
+          <i class="fas fa-user-plus"></i> Créer un Client
+        </a>
+      </li>
+    </ul>
+
+    <hr />
+
+        <ul *ngIf="clientId && !isCreatingClient">
+      <li>
+        <a [routerLink]="['clients', clientId]" routerLinkActive="active">
+          <i class="fas fa-file-alt"></i> Voir les Détails
+        </a>
+      </li>
+      <li>
+        <a [routerLink]="['clients', clientId, 'edit']" routerLinkActive="active">
+          <i class="fas fa-pen"></i> Modifier
+        </a>
+      </li>
+       <!-- ✅ Nouveau bouton : Ajouter un compte -->
+      <li>
+        <a [routerLink]="['clients', clientId, 'add-account']" routerLinkActive="active">
+          <i class="fas fa-university"></i> Ajouter un Compte
+        </a>
+      </li>
+      <li>
+        <a [routerLink]="['clients', clientId, 'status']" routerLinkActive="active">
+          <i class="fas fa-toggle-on"></i> Statut
+        </a>
+      </li>
+      <li>
+        <a [routerLink]="['clients', clientId, 'delete']" routerLinkActive="active">
+          <i class="fas fa-trash"></i> Supprimer
+        </a>
+      </li>
+     
+    </ul>
+
+  </nav>
+</aside>

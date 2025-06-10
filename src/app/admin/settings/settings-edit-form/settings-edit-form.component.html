@@ -1,0 +1,70 @@
+<div class="settings-edit-form">
+  <h2>{{ formTitle }}</h2>
+
+  <form (ngSubmit)="onSubmit()" #settingForm="ngForm">
+    <div class="form-group">
+      <label for="key">Nom (Clé)</label>
+      <input
+        id="key"
+        name="key"
+        [(ngModel)]="setting.key"
+        required
+        [disabled]="setting.id != null"
+        class="form-control"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="label">Étiquette</label>
+      <input
+        id="label"
+        name="label"
+        [(ngModel)]="setting.label"
+        class="form-control"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <input
+        id="description"
+        name="description"
+        [(ngModel)]="setting.description"
+        class="form-control"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="category">Catégorie</label>
+      <select
+        id="category"
+        name="category"
+        [(ngModel)]="setting.category"
+        class="form-control"
+      >
+        <option value="finance">Finance</option>
+        <option value="security">Sécurité</option>
+        <option value="other">Autre</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="value">Valeur</label>
+      <input
+        id="value"
+        name="value"
+        [(ngModel)]="setting.value"
+        class="form-control"
+        [type]="isValueDate() ? 'date' : 'text'"
+      />
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-save" [disabled]="!settingForm.valid">Enregistrer</button>
+      <button type="button" class="btn-cancel" (click)="onCancel()">Annuler</button>
+      @if (setting.id) {
+        <button type="button" class="btn-delete" (click)="onDelete()">Supprimer</button>
+      }
+    </div>
+  </form>
+</div>

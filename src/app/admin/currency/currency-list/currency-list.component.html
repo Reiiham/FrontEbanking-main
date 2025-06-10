@@ -1,0 +1,48 @@
+<div class="currency-list">
+  <h2>Liste des devises</h2>
+  @if (error) {
+    <div class="error-message">{{ error }}</div>
+  }
+  @if (loading) {
+    <div class="loading">Chargement...</div>
+  }
+  <button (click)="addNewCurrency()" class="btn-add">+ Ajouter une devise</button>
+  @if (selectedCurrency) {
+    <app-currency-form
+      [formTitle]="selectedCurrency.id ? 'Modifier la devise' : 'Ajouter une devise'"
+      [currency]="selectedCurrency"
+      (save)="saveEdited($event)"
+      (cancel)="cancelEdit()"
+      (delete)="deleteCurrency($event)"
+    ></app-currency-form> }
+
+  @if (currencies.length > 0) {
+    <table>
+      <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Code ISO</th>
+        <th>Taux</th>
+        <th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (currency of currencies; track currency.id) {
+          <tr>
+            <td>{{ currency.name }}</td>
+            <td>{{ currency.codeISO }}</td>
+            <td>{{ currency.exchangeRate }}</td>
+            <td>
+              <button (click)="edit(currency)" class="btn-edit">Modifier</button>
+              <button (click)="deleteCurrency(currency.id ?? -1)" class="btn-delete" [disabled]="!currency.id">Supprimer</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <p>Aucune devise disponible.</p>
+  }
+
+  <button (click)="loadCurrencies()" class="btn-refresh">Rafraîchir</button>
+</div>
