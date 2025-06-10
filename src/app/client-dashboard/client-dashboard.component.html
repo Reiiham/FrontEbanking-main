@@ -335,7 +335,7 @@
       <form (ngSubmit)="generateQr()" #qrForm="ngForm" novalidate>
         <div class="mb-3">
           <label>RIB Destinataire</label>
-          <input type="text" class="form-control" [(ngModel)]="qrData.rib" name="rib" required pattern="^\d{23}$">
+          <input type="text" class="form-control" [(ngModel)]="qrData.rib" name="rib" required pattern="^\d{24}$">
         </div>
         <div class="mb-3">
           <label>Montant</label>
