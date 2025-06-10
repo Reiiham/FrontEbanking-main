@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 // Angular Material Modules
@@ -27,14 +27,17 @@ import { AuthInterceptor } from './services/auth.interceptor';
 
 // Toastr
 import { ToastrModule } from 'ngx-toastr';
+import { QrPaymentComponent } from './qr-payment/qr-payment.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     SetPasswordComponent,
-    ChatbotComponent
+    ChatbotComponent,
+    QrPaymentComponent
   ],
   imports: [
+    ReactiveFormsModule?
     BrowserModule,
     HttpClientModule,
     RouterModule.forRoot(routes),

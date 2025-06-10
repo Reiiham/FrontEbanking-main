@@ -1,0 +1,38 @@
+.container {
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+}
+div {
+  margin-bottom: 15px;
+}
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+input {
+  width: 100%;
+  padding: 8px;
+}
+button {
+  padding: 10px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+.qr-container {
+  text-align: center;
+  margin-top: 20px;
+}
+.qr-container img {
+  max-width: 200px;
+}
+.error {
+  color: red;
+  font-size: 0.9em;
+}

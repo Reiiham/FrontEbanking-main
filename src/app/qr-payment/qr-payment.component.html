@@ -1,0 +1,31 @@
+<div class="container">
+  <h2>Générer un QR Code pour Paiement</h2>
+  <form [formGroup]="qrForm" (ngSubmit)="generateQr()">
+    <div>
+      <label for="rib">RIB du destinataire :</label>
+      <input id="rib" formControlName="rib" placeholder="12345678900092812631431">
+      <div *ngIf="qrForm.get('rib')?.invalid && qrForm.get('rib')?.touched" class="error">
+        RIB invalide (21 chiffres requis)
+      </div>
+    </div>
+    <div>
+      <label for="amount">Montant :</label>
+      <input id="amount" type="number" formControlName="amount" placeholder="199.00">
+      <div *ngIf="qrForm.get('amount')?.invalid && qrForm.get('amount')?.touched" class="error">
+        Montant invalide (doit être > 0)
+      </div>
+    </div>
+    <div>
+      <label for="description">Description :</label>
+      <input id="description" formControlName="description" placeholder="Paiement QR">
+    </div>
+    <button type="submit" [disabled]="qrForm.invalid">Générer QR</button>
+  </form>
+
+  <div *ngIf="qrImageSrc" class="qr-container">
+    <h3>QR Code généré :</h3>
+    <img [src]="qrImageSrc" alt="QR Code">
+  </div>
+
+  <p *ngIf="error" class="error">{{ error }}</p>
+</div>
