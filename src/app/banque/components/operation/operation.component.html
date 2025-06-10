@@ -21,15 +21,26 @@
       class="form-control"
       [(ngModel)]="amount"
       name="amount"
-      placeholder="Montant"
+      placeholder="Montant (positif pour dépôt, négatif pour retrait)"
       required />
   </div>
 
   <div class="button-group">
-    <button type="button" class="btn btn-success" (click)="deposit()">💰 Dépôt</button>
-    <button type="button" class="btn btn-warning" (click)="withdraw()">🏧 Retrait</button>
+    <button
+      type="button"
+      class="btn btn-success"
+      (click)="deposit()"
+      [disabled]="!accountId || amount <= 0">
+      💰 Dépôt
+    </button>
+    <button
+      type="button"
+      class="btn btn-warning"
+      (click)="withdraw()"
+      [disabled]="!accountId || amount <= 0">
+      🏧 Retrait
+    </button>
   </div>
-
   <div *ngIf="message" class="alert alert-success mt-2">{{ message }}</div>
   <div *ngIf="error" class="alert alert-danger mt-2">{{ error }}</div>
 </form>
