@@ -120,32 +120,143 @@ export class ClientDashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   private onTabChange(tab: string) {
-    switch (tab) {
-      case 'virement':
-        if (this.clientId) {
-          this.loadClientAccounts();
-          this.loadBeneficiaries();
-        }
-        break;
-      case 'beneficiaires':
-        if (this.clientId) {
-          this.loadBeneficiaries();
-          this.loadRelationTypes();
-        }
-        break;
-      case 'historique':
-        if (this.clientId) {
-          this.loadTransferHistory();
-        }
-        break;
-      case 'recharge':
-        this.loadRechargeData();
-        break;
-      case 'crypto':
-        this.loadCryptoData();
-        break;
+      switch (tab) {
+        case 'virement':
+          if (this.clientId) {
+            this.loadClientAccounts();
+            this.loadBeneficiaries();
+          }
+          break;
+        case 'beneficiaires':
+          if (this.clientId) {
+            this.loadBeneficiaries();
+            this.loadRelationTypes();
+          }
+          break;
+        case 'historique':
+          if (this.clientId) {
+            this.loadTransferHistory();
+          }
+          break;
+        case 'recharge':
+          this.loadRechargeData();
+          break;
+        case 'crypto':
+          this.loadCryptoData();
+          break;
+        case 'qr': // ✅ Ajouter ce bloc
+          if (this.clientId) {
+            this.loadClientAccounts();
+          }
+          break;
+      }
     }
-  }
+
+
+
+      qrData = {
+      rib: '',
+      amount: 0,
+      description: ''
+    };
+    qrImage: string | null = null;
+    qrError: string | null = null;
+
+    generateQr() {
+
+      
+    console.log('Token:', this.authService.getToken());
+
+  const headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': `Bearer ${this.authService.getToken()}`
+  });
+  const body = {
+    rib: this.qrData.rib,
+    amount: this.qrData.amount,
+    description: this.qrData.description
+  };
+  console.log('Payload:', body);
+
+
+  this.http.post<any>('http://localhost:8090/eBankingVer1_war_exploded/api/v1/qr-payments/generate', body, { headers })
+    .subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.qrImage = res.data; // base64 image
+          this.qrError = null;
+        } else {
+          this.qrError = res.error || 'Erreur inconnue';
+          this.qrImage = null;
+        }
+      },
+      error: (err) => {
+        this.qrError = err.error?.error || 'Erreur réseau ou serveur';
+        this.qrImage = null;
+      }
+    });
+}
+
+
+
+  qrPaymentData = {
+  sourceAccountId: '',  // Utilisez l'ID du compte directement
+  rib: '',
+  amount: 0,
+  description: ''
+};
+
+processQrPayment() {
+  console.log('Selected account ID:', this.qrPaymentData.sourceAccountId);
+
+  const headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': `Bearer ${this.authService.getToken()}`
+  });
+
+  const body = { ...this.qrPaymentData };
+
+  this.http.post<any>(
+    'http://localhost:8090/eBankingVer1_war_exploded/api/v1/qr-payments/process',
+    body,
+    { headers }
+  ).subscribe({
+    next: (res) => {
+      if (res.success) {
+        this.showMessage('Paiement QR effectué avec succès ✅', 'success');
+        this.qrPaymentData = { sourceAccountId: '', rib: '', amount: 0, description: '' };
+        this.loadClientAccounts(); // Refresh balance
+      } else {
+        this.showMessage(res.error || 'Erreur lors du traitement du paiement QR', 'error');
+      }
+    },
+    error: (err) => {
+      this.showMessage(err.error?.error || 'Erreur serveur', 'error');
+    }
+  });
+}
+
+useQrToPay() {
+  this.qrPaymentData.rib = this.qrData.rib;
+  this.qrPaymentData.amount = this.qrData.amount;
+  this.qrPaymentData.description = this.qrData.description;
+  this.activeTab = 'qr'; // reste sur le même onglet pour visibilité
+  this.showMessage('Formulaire de paiement prérempli avec les données du QR.', 'success');
+}
+
+isQrPaymentValid(): boolean {
+  return (
+    this.qrPaymentData.sourceAccountId !== '' &&
+    this.qrPaymentData.rib.trim() !== '' &&
+    this.qrPaymentData.amount > 0
+  );
+}
+
+
+
+
 
   ngOnInit() {
     const clientIdSub = this.authService.clientId$.subscribe(clientId => {
@@ -194,6 +305,7 @@ export class ClientDashboardComponent implements OnInit, OnDestroy {
 
   // Méthodes pour les virements
   loadClientAccounts() {
+    console.log(this.clientAccounts)
     if (!this.clientId) {
       this.showMessage('ClientId non disponible', 'error');
       return;
