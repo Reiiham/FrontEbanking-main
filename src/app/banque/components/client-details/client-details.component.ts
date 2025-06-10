@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ClientService } from '../../../services/banque.service';
 import { ServiceManagerService } from '../../../services/service-manager.service';
 import { ClientSummaryDTO } from '../../models/client-summary.model';
+import {ActivateServicesRequest} from '../../models/activate-services-request.model';
 
 @Component({
   selector: 'app-client-details',
@@ -140,6 +141,10 @@ export class ClientDetailsComponent implements OnInit {
     console.log('🔍 Client data:', this.client);
     console.log('🔍 Client ID:', this.clientId);
 
+    // Vérifier le token au début
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || localStorage.getItem('token');
+    console.log('🔑 Token check in activate method:', token ? 'EXISTS' : 'MISSING');
+
     // 🔁 Recharger les données du client AVANT de valider l'éligibilité
     this.clientService.getClientById(this.clientId).subscribe({
       next: (client) => {
@@ -165,72 +170,97 @@ export class ClientDetailsComponent implements OnInit {
 
         console.log('🔍 Services to activate:', this.newServices);
 
-        const request = {
+        // Vérifier que la structure correspond à ActivateServicesRequest
+        const request: ActivateServicesRequest = {
           clientId: this.clientId,
           services: this.newServices
         };
 
+        console.log('🔍 Request payload:', JSON.stringify(request, null, 2));
+        console.log('🔍 Request type check:');
+        console.log('  - clientId type:', typeof request.clientId);
+        console.log('  - services type:', typeof request.services);
+        console.log('  - services is array:', Array.isArray(request.services));
+
         this.isLoading = true;
+
+        console.log('🚀 About to call serviceManager.activateServices...');
+
         this.serviceManager.activateServices(request).subscribe({
-          next: () => {
+          next: (response) => {
             console.log('✅ Services activated successfully');
-            this.message = "Services activés avec succès.";
+            console.log('✅ Response:', response);
+            console.log('✅ Response type:', typeof response);
+
+            // La réponse est maintenant une string, pas un objet JSON
+            this.message = response || "Services activés avec succès.";
+            this.newServices = []; // Reset selection
           },
           error: (error) => {
             console.error('❌ activateServices ERROR:', error);
-            this.error = "Erreur lors de l'activation.";
+            console.error('❌ Full error object:', JSON.stringify(error, null, 2));
+            console.error('❌ Error details:', {
+              status: error.status,
+              statusText: error.statusText,
+              message: error.message,
+              error: error.error,
+              url: error.url,
+              name: error.name
+            });
+
+            // Message d'erreur plus détaillé basé sur le status
+            let errorMessage = "Erreur lors de l'activation";
+
+            switch (error.status) {
+              case 0:
+                errorMessage += " - Problème de connexion au serveur";
+                break;
+              case 400:
+                errorMessage += " - Données invalides";
+                if (error.error?.message) {
+                  errorMessage += `: ${error.error.message}`;
+                }
+                break;
+              case 401:
+                errorMessage += " - Non autorisé (token invalide)";
+                break;
+              case 403:
+                errorMessage += " - Accès refusé";
+                break;
+              case 404:
+                errorMessage += " - Service non trouvé";
+                break;
+              case 500:
+                errorMessage += " - Erreur serveur interne";
+                break;
+              default:
+                errorMessage += ` - Code erreur: ${error.status}`;
+                if (error.error?.message) {
+                  errorMessage += `: ${error.error.message}`;
+                }
+            }
+
+            this.error = errorMessage;
           },
-          complete: () => this.isLoading = false
+          complete: () => {
+            console.log('🔍 activateServices completed');
+            this.isLoading = false;
+          }
         });
       },
       error: (error) => {
         console.error('❌ Reload client ERROR:', error);
+        console.error('❌ Reload error details:', {
+          status: error.status,
+          statusText: error.statusText,
+          message: error.message,
+          error: error.error
+        });
         this.error = "Impossible de vérifier les statuts du client.";
+        this.isLoading = false;
       }
     });
   }
-
-  // activate(): void {
-  //   this.clearMessages();
-  //   console.log('🔍 Activate method called');
-  //   console.log(this.client);
-  //
-  //   // 🔁 Recharger les données du client AVANT de valider l'éligibilité
-  //   this.clientService.getClientById(this.clientId).subscribe({
-  //     next: (client) => {
-  //       this.client = client;
-  //
-  //       if (!this.isEligible) {
-  //         this.error = "Le client est bloqué ou n'a pas tous les documents complets.";
-  //         return;
-  //       }
-  //
-  //       if (this.newServices.length === 0) {
-  //         this.error = "Veuillez sélectionner des services à activer.";
-  //         return;
-  //       }
-  //
-  //       const request = {
-  //         clientId: this.clientId,
-  //         services: this.newServices
-  //       };
-  //
-  //       this.isLoading = true;
-  //       this.serviceManager.activateServices(request).subscribe({
-  //         next: () => this.message = "Services activés avec succès.",
-  //         error: (error) => {
-  //           console.error('❌ activateServices ERROR:', error);
-  //           this.error = "Erreur lors de l'activation.";
-  //         },
-  //         complete: () => this.isLoading = false
-  //       });
-  //     },
-  //     error: (error) => {
-  //       console.error('❌ Reload client ERROR:', error);
-  //       this.error = "Impossible de vérifier les statuts du client.";
-  //     }
-  //   });
-  // }
 
   suspend(): void {
     this.clearMessages();
